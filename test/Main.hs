@@ -96,7 +96,6 @@ textFoldl'Length = Data.Text.foldl' (\b _ -> b + 1) 0
 
 main :: IO ()
 main = do
-  {-
   defaultMain
     [ env (pure . pack $ Data.List.replicate 1000 'a') $
       \input -> bgroup "text length"
@@ -118,7 +117,6 @@ main = do
       , bench "text" $ whnf textFilterMap input
       ]
     ]
--}
 
   mainWith $ do
     func "cons foldr length" consFoldrLength (pack $ Data.List.replicate 1000 'a')
