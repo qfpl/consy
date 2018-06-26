@@ -10,14 +10,18 @@ import Data.Char (Char)
 import Data.Eq ((==))
 import Data.Function (($), (.))
 import Data.Int (Int)
+import Data.Ord ((>))
+import Data.Sequence (Seq)
 import Data.Text (Text, pack)
-import qualified Data.Text
 import GHC.Base (IO, pure)
 import GHC.Enum (succ)
 import GHC.Num (Num, (+))
 import Test.Inspection
 
+import qualified Data.Foldable
 import qualified Data.List
+import qualified Data.Sequence
+import qualified Data.Text
 import Consy
 
 consFilter, listFilter :: (a -> Bool) -> [a] -> [a]
@@ -30,6 +34,24 @@ listFilter p = go
       | otherwise = go xs
 
 inspect ('consFilter === 'listFilter)
+
+
+{-# noinline consFilterSeq #-}
+{-# noinline seqFilter #-}
+consFilterSeq, seqFilter :: (a -> Bool) -> Seq a -> Seq a
+consFilterSeq = filter
+seqFilter = Data.Sequence.filter
+
+inspect ('consFilterSeq === 'seqFilter)
+
+
+{-# noinline consFoldl'Seq #-}
+{-# noinline seqFoldl' #-}
+consFoldl'Seq, seqFoldl' :: (b -> a -> b) -> b -> Seq a -> b
+consFoldl'Seq = foldl'
+seqFoldl' = Data.Foldable.foldl'
+
+inspect ('consFoldl'Seq === 'seqFoldl')
 
 
 consTakeText, textTake :: Int -> Text -> Text
@@ -190,7 +212,17 @@ inspect ('consFoldl'Length === 'textFoldl'Length)
 main :: IO ()
 main =
   defaultMain
-    [ env (pure . pack $ Data.List.replicate 1000 'a') $
+    [ env (pure $ Data.Sequence.fromList [1..1000::Int]) $
+      \input -> bgroup "sequence filter"
+      [ bench "cons filter seq" $ whnf (consFilterSeq (>500)) input
+      , bench "seq filter" $ whnf (seqFilter (>500)) input
+      ]
+    , env (pure $ Data.Sequence.fromList [1..1000::Int]) $
+      \input -> bgroup "sequence foldl'"
+      [ bench "cons foldl' seq" $ whnf (consFoldl'Seq (\a _ -> a + 1) 0) input
+      , bench "seq foldl'" $ whnf (seqFoldl' (\a _ -> a + 1) 0) input
+      ]
+    , env (pure . pack $ Data.List.replicate 1000 'a') $
       \input -> bgroup "text length"
       [ bench "cons length text" $ whnf consLength input
       , bench "text length" $ whnf textLength input

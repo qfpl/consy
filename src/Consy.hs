@@ -15,10 +15,14 @@ import Data.Int (Int)
 import Data.Function ((.), id)
 import Data.Maybe (Maybe(..))
 import Data.Ord ((<))
+import Data.Sequence (Seq)
 import Data.Text (Text)
-import qualified Data.Text
 import GHC.Base (oneShot, seq)
 import GHC.Num ((+), (-))
+
+import qualified Data.Foldable
+import qualified Data.Sequence
+import qualified Data.Text
 
 {-# inline [0] cons #-}
 cons :: Cons s s a a => a -> s -> s
@@ -64,6 +68,10 @@ foldl' k z0 xs =
 "cons foldl' text" [~2] foldl' @Text @Char = Data.Text.foldl'
 "cons foldl' text eta" [~2] forall f z xs.
   foldl' @Text @Char f z xs = Data.Text.foldl' f z xs
+
+"cons foldl' seq" [~2] foldl' @(Seq _) = Data.Foldable.foldl'
+"cons foldl' seq eta" [~2] forall f z xs.
+  foldl' @(Seq _) f z xs = Data.Foldable.foldl' f z xs
 #-}
 
 {-# noinline [1] length #-}
@@ -144,6 +152,9 @@ filterFB c p x r
 
 "cons filter text" filter @Text @Char = Data.Text.filter
 "cons filter text eta" forall p xs. filter @Text @Char p xs = Data.Text.filter p xs
+
+"cons filter seq" filter @(Seq _) = Data.Sequence.filter
+"cons filter seq eta" forall p xs. filter @(Seq _) p xs = Data.Sequence.filter p xs
 #-}
 
 repeat :: (AsEmpty s, Cons s s a a) => a -> s
