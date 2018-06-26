@@ -39,6 +39,7 @@ textFilter = Data.Text.filter (== 'a') (pack "bbbb")
 
 inspect ('consFilterText === 'textFilter)
 
+
 consFilterMapText, textFilterMap :: Text -> Text
 consFilterMapText = map succ . filter (== 'a')
 textFilterMap = Data.Text.map succ . Data.Text.filter (== 'a')
@@ -58,6 +59,7 @@ consFoldrListLength = foldr (\_ -> (+1)) 0
 listFoldrLength = Data.List.foldr (\_ -> (+1)) 0
 
 inspect ('consFoldrListLength === 'listFoldrLength)
+
 
 consListLength, listLength :: [a] -> Int
 consListLength = length
