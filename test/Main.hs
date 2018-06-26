@@ -1,7 +1,7 @@
 {-# language TemplateHaskell #-}
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-simpl #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module Main where
 
 import Criterion.Main
@@ -16,7 +16,6 @@ import GHC.Base (IO, pure)
 import GHC.Enum (succ)
 import GHC.Num (Num, (+))
 import Test.Inspection
-import Weigh
 
 import qualified Data.List
 import Consy
@@ -33,11 +32,74 @@ listFilter p = go
 inspect ('consFilter === 'listFilter)
 
 
-consFilterText, textFilter :: Text
-consFilterText = filter (== 'a') (pack "bbbb")
-textFilter = Data.Text.filter (== 'a') (pack "bbbb")
+consTakeText, textTake :: Int -> Text -> Text
+consTakeText = take
+textTake = Data.Text.take
+
+inspect ('consTakeText === 'textTake)
+
+
+consTakeText', textTake' :: Text -> Text
+consTakeText' = take 10
+textTake' = Data.Text.take 10
+
+inspect ('consTakeText' === 'textTake')
+
+
+consTakeText'', textTake'' :: Text
+consTakeText'' = take 10 (pack "bbbb")
+textTake'' = Data.Text.take 10 (pack "bbbb")
+
+inspect ('consTakeText'' === 'textTake'')
+
+
+consFoldl'Text, textFoldl' :: (a -> Char -> a) -> a -> Text -> a
+consFoldl'Text = foldl'
+textFoldl' = Data.Text.foldl'
+
+inspect ('consFoldl'Text === 'textFoldl')
+
+
+consFoldl'Text2, textFoldl'2 :: Int -> Text -> Int
+consFoldl'Text2 = foldl' (\a _ -> a + 1)
+textFoldl'2 = Data.Text.foldl' (\a _ -> a + 1)
+
+inspect ('consFoldl'Text2 === 'textFoldl'2)
+
+
+consFoldl'Text3, textFoldl'3 :: Text -> Int
+consFoldl'Text3 = foldl' (\a _ -> a + 1) 0
+textFoldl'3 = Data.Text.foldl' (\a _ -> a + 1) 0
+
+inspect ('consFoldl'Text3 === 'textFoldl'3)
+
+
+consFoldl'Text4, textFoldl'4 :: Int
+consFoldl'Text4 = foldl' (\a _ -> a + 1) 0 (pack "aaaa")
+textFoldl'4 = Data.Text.foldl' (\a _ -> a + 1) 0 (pack "aaaa")
+
+inspect ('consFoldl'Text4 === 'textFoldl'4)
+
+
+consFilterText, textFilter :: (Char -> Bool) -> Text -> Text
+consFilterText = filter
+textFilter = Data.Text.filter
 
 inspect ('consFilterText === 'textFilter)
+
+
+consFilterText', textFilter' :: Text -> Text
+consFilterText' = filter (== 'a')
+textFilter' = Data.Text.filter (== 'a')
+
+inspect ('consFilterText' === 'textFilter')
+
+
+consFilterText'', textFilter'' :: Text
+consFilterText'' = filter (== 'a') (pack "bbbb")
+textFilter'' = Data.Text.filter (== 'a') (pack "bbbb")
+
+inspect ('consFilterText'' === 'textFilter'')
 
 
 consFilterMapText, textFilterMap :: Text -> Text
@@ -61,6 +123,36 @@ listFoldrLength = Data.List.foldr (\_ -> (+1)) 0
 inspect ('consFoldrListLength === 'listFoldrLength)
 
 
+consReplicate, listReplicate :: [Char]
+consReplicate = replicate 100 'a'
+listReplicate = Data.List.replicate 100 'a'
+
+inspect ('consReplicate === 'listReplicate)
+
+
+consReplicateMap, listReplicateMap :: [Int]
+consReplicateMap = map (+10) (replicate 100 10)
+listReplicateMap = Data.List.map (+10) (Data.List.replicate 100 10)
+
+inspect ('consReplicateMap === 'listReplicateMap)
+
+
+consReplicateMap', listReplicateMap' :: Int -> [Int]
+consReplicateMap' n = map (+10) (replicate n 10)
+listReplicateMap' n = Data.List.map (+10) (Data.List.replicate n 10)
+
+inspect ('consReplicateMap' === 'listReplicateMap')
+
+
+{-# noinline consReplicateText #-}
+{-# noinline textReplicate #-}
+consReplicateText, textReplicate :: Int -> Char -> Text
+consReplicateText n x = replicate n x
+textReplicate n x = Data.Text.replicate n (Data.Text.singleton x)
+
+inspect ('consReplicateText === 'textReplicate)
+
+
 consListLength, listLength :: [a] -> Int
 consListLength = length
 listLength = go 0
@@ -80,12 +172,11 @@ listLength = go 0
 {-# noinline textLength #-}
 consLength, consFoldrLength, textFoldrLength, textLength :: Text -> Int
 consLength = length
+textLength = Data.Text.length
 consFoldrLength = foldr (\_ -> (+1)) 0
 textFoldrLength = Data.Text.foldr (\_ -> (+1)) 0
-textLength = Data.Text.length
 
--- These are not equal
--- inspect ('consLengthText === 'textFoldrLength)
+inspect ('consLength === 'textLength)
 
 {-# noinline consFoldl'Length #-}
 {-# noinline textFoldl'Length #-}
@@ -93,11 +184,11 @@ consFoldl'Length, textFoldl'Length :: Text -> Int
 consFoldl'Length = foldl' (\b _ -> b + 1) 0
 textFoldl'Length = Data.Text.foldl' (\b _ -> b + 1) 0
 
--- These are not equal either
--- inspect ('consFoldl' === 'listFoldl')
+inspect ('consFoldl'Length === 'textFoldl'Length)
+
 
 main :: IO ()
-main = do
+main =
   defaultMain
     [ env (pure . pack $ Data.List.replicate 1000 'a') $
       \input -> bgroup "text length"
@@ -118,10 +209,8 @@ main = do
       [ bench "cons" $ whnf consFilterMapText input
       , bench "text" $ whnf textFilterMap input
       ]
+    , bgroup "text replicate"
+      [ bench "cons replicate text" $ whnf (consReplicateText 1000) 'a'
+      , bench "text replicate" $ whnf (textReplicate 1000) 'a'
+      ]
     ]
-
-  mainWith $ do
-    func "cons foldr length" consFoldrLength (pack $ Data.List.replicate 1000 'a')
-    func "foldr length" textFoldrLength (pack $ Data.List.replicate 1000 'a')
-    func "cons length text" consLength (pack $ Data.List.replicate 1000 'a')
-    func "text length" textLength (pack $ Data.List.replicate 1000 'a')
