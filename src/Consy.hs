@@ -8,6 +8,8 @@ module Consy
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
   , foldr
+  , foldr2
+  , build
   , length
   , foldl'
   , filter
@@ -15,16 +17,25 @@ module Consy
   , repeat
   , take
   , replicate
-  , build
+  , zipWith
+  , append
+  , stripSuffix
+  , stripPrefix
+  , prefixed
+  , suffixed
   )
 where
 
 import Control.Lens.Cons
 import Control.Lens.Empty
+import Control.Lens.Prism (Prism', prism')
+import Control.Monad (guard)
 import Data.Bool ((&&), Bool(..), otherwise)
 import Data.Char (Char)
 import Data.Int (Int)
-import Data.Function ((.), id)
+import Data.Eq (Eq(..))
+import Data.Function ((.), id, const)
+import Data.Functor ((<$))
 import Data.Maybe (Maybe(..))
 import Data.Ord ((<))
 import Data.Sequence (Seq)
@@ -37,9 +48,17 @@ import qualified Data.ByteString.Lazy as LBS
 import qualified Data.ByteString as BS
 import qualified Data.Foldable
 import qualified Data.Functor
-import qualified Data.List
 import qualified Data.Sequence
 import qualified Data.Text
+import qualified Data.Text.Lazy
+
+{-# inline [1] augment #-}
+augment :: Cons s s a a => (forall b. (a->b->b) -> b -> b) -> s -> s
+augment g xs = g cons xs
+{-# rules
+"cons foldr/augment" forall k z xs (g::forall b. (a->b->b) -> b -> b).
+  foldr k z (augment g xs) = g k (foldr k z xs)
+#-}
 
 {-# inline [1] build #-}
 build
@@ -58,17 +77,24 @@ foldr f z = go
         Just (x, xs) -> f x (go xs)
 
 {-# rules
-"cons foldr/build" forall f z (g :: forall b. (a -> b -> b) -> b -> b).
+"cons foldr/build" [2] forall f z (g :: forall b. (a -> b -> b) -> b -> b).
   foldr f z (build g) = g f z
 
--- consy foldr is faster than Text's
--- consy foldr is faster than ByteString's
+"cons foldr text" [~2] foldr @Data.Text.Text = Data.Text.foldr
+"cons foldr text eta" [~2] forall f z xs. foldr @Data.Text.Text f z xs = Data.Text.foldr f z xs
 
-"cons foldr lbs" foldr @LBS.ByteString = LBS.foldr
-"cons foldr lbs eta" forall f z xs. foldr @LBS.ByteString f z xs = LBS.foldr f z xs
+"cons foldr ltext" [~2] foldr @Data.Text.Lazy.Text = Data.Text.Lazy.foldr
+"cons foldr ltext eta" [~2] forall f z xs.
+  foldr @Data.Text.Lazy.Text f z xs = Data.Text.Lazy.foldr f z xs
 
-"cons foldr seq" foldr @(Seq _) = Data.Foldable.foldr
-"cons foldr seq eta" forall f z xs. foldr @(Seq _) f z xs = Data.Foldable.foldr f z xs
+"cons foldr bs" [~2] foldr @BS.ByteString = BS.foldr
+"cons foldr bs eta" [~2] forall f z xs. foldr @BS.ByteString f z xs = BS.foldr f z xs
+
+"cons foldr lbs" [~2] foldr @LBS.ByteString = LBS.foldr
+"cons foldr lbs eta" [~2] forall f z xs. foldr @LBS.ByteString f z xs = LBS.foldr f z xs
+
+"cons foldr seq" [~2] foldr @(Seq _) = Data.Foldable.foldr
+"cons foldr seq eta" [~2] forall f z xs. foldr @(Seq _) f z xs = Data.Foldable.foldr f z xs
 #-}
 
 {-# inline [2] foldl' #-}
@@ -157,6 +183,9 @@ mapFB c f = \x ys -> c (f x) ys
 "cons mapFB" forall c f g. mapFB (mapFB c f) g = mapFB c (f.g)
 "cons mapFB/id" forall c. mapFB c (\x -> x) = c
 
+"cons map ltext" map @Data.Text.Lazy.Text = Data.Text.Lazy.map
+"cons map ltext eta" forall f xs. map @Data.Text.Lazy.Text f xs = Data.Text.Lazy.map f xs
+
 "cons map text" map @Text = Data.Text.map
 "cons map text eta" forall f xs. map @Text f xs = Data.Text.map f xs
 
@@ -193,6 +222,10 @@ filterFB c p x r
 
 "cons filterList" [1] forall p. foldr (filterFB (:) p) [] = filter p
 
+"cons filter ltext" filter @Data.Text.Lazy.Text @Char = Data.Text.Lazy.filter
+"cons filter ltext eta" forall p xs.
+  filter @Data.Text.Lazy.Text @Char p xs = Data.Text.Lazy.filter p xs
+
 "cons filter text" filter @Text @Char = Data.Text.filter
 "cons filter text eta" forall p xs. filter @Text @Char p xs = Data.Text.filter p xs
 
@@ -217,6 +250,8 @@ repeatFB c _ x = xs where xs = x `c` xs
 {-# rules
 "cons repeat" [~1] forall x. repeat x = build (\c n -> repeatFB c n x)
 "cons repeatFB" [1] repeatFB (:) [] = repeat
+
+"cons repeat ltext" repeat @Data.Text.Lazy.Text = Data.Text.Lazy.repeat
 
 "cons repeat bslazy" repeat @LBS.ByteString = LBS.repeat
 #-}
@@ -261,6 +296,9 @@ unsafeTake !m s =
 
 "cons take bslazy" take @LBS.ByteString = LBS.take . fromIntegral
 "cons take bslazy eta" forall n xs. take @LBS.ByteString n xs = LBS.take (fromIntegral n) xs
+
+"cons take seq" take @(Seq _) = Data.Sequence.take
+"cons take seq eta" forall n xs. take @(Seq _) n xs = Data.Sequence.take n xs
 #-}
 
 {-# inline [0] flipSeqTake #-}
@@ -284,6 +322,13 @@ replicate = \n x -> take n (repeat x)
 "cons replicate text eta" [~2] forall n x.
   replicate @Text @Char n x = Data.Text.replicate n (Data.Text.singleton x)
 
+"cons replicate ltext" [~2]
+  replicate @Data.Text.Lazy.Text @Char =
+    \n x -> Data.Text.Lazy.replicate (fromIntegral n) (Data.Text.Lazy.singleton x)
+"cons replicate ltext eta" [~2] forall n x.
+  replicate @Data.Text.Lazy.Text @Char n x =
+    Data.Text.Lazy.replicate (fromIntegral n) (Data.Text.Lazy.singleton x)
+
 "cons replicate bs" [~2]
   replicate @BS.ByteString = \n x -> BS.replicate (fromIntegral n) x
 "cons replicate bs eta" [~2] forall n x.
@@ -294,3 +339,162 @@ replicate = \n x -> take n (repeat x)
 "cons replicate bslazy eta" [~2] forall n x.
   replicate @LBS.ByteString n x = LBS.replicate (fromIntegral n) x
 #-}
+
+{-# inline [1] append #-}
+append :: Cons s s a a => s -> s -> s
+append = go
+  where
+    go a b =
+      case uncons a of
+        Nothing -> b
+        Just (x, xs) -> x `cons` go xs b
+{-# rules
+"cons ++" [~1] forall xs ys. append xs ys = augment (\c n -> foldr c n xs) ys
+"cons foldr/app" [1] forall ys. foldr (:) ys = \xs -> append xs ys
+
+"cons append text" [~2] append @Text = Data.Text.append
+"cons append text eta" [~2] forall a b. append @Text a b = Data.Text.append a b
+
+"cons append ltext" [~2] append @Data.Text.Lazy.Text = Data.Text.Lazy.append
+"cons append ltext eta" [~2] forall a b.
+  append @Data.Text.Lazy.Text a b = Data.Text.Lazy.append a b
+
+"cons append bs" [~2] append @BS.ByteString = BS.append
+"cons append bs eta" [~2] forall a b. append @BS.ByteString a b = BS.append a b
+
+"cons append lbs" [~2] append @LBS.ByteString = LBS.append
+"cons append lbs eta" [~2] forall a b. append @LBS.ByteString a b = LBS.append a b
+
+"cons append seq" [~2] append @(Seq _) = (Data.Sequence.><)
+"cons append seq eta" [~2] forall a b. append @(Seq _) a b = (Data.Sequence.><) a b
+#-}
+
+prefixed :: (Cons s s a a, Eq a) => s -> Prism' s s
+prefixed ps = prism' (ps `append`) (stripPrefix ps)
+{-# inline prefixed #-}
+
+suffixed :: (AsEmpty s, Eq s, Cons s s a a, Eq a) => s -> Prism' s s
+suffixed qs = prism' (`append` qs) (stripSuffix qs)
+{-# inline suffixed #-}
+
+stripPrefix :: (Cons s s a a, Eq a) => s -> s -> Maybe s
+stripPrefix s ys =
+  case uncons s of
+    Nothing -> Just ys
+    Just (x, xs)
+      | Just (y', ys') <- uncons ys
+      ,  x == y' -> stripPrefix xs ys'
+    _ -> Nothing
+{-# inline stripPrefix #-}
+
+foldr2 :: (Cons s s a a, Cons t t b b) => (a -> b -> c -> c) -> c -> s -> t -> c
+foldr2 k z = go
+  where
+    go xs ys =
+      case uncons xs of
+        Nothing -> z
+        Just (x', xs') ->
+          case uncons ys of
+            Nothing -> z
+            Just (y', ys') -> k x' y' (go xs' ys')
+{-# inline [0] foldr2 #-}
+
+foldr2_left :: Cons s s b b => (a -> b -> c -> d) -> d -> a -> (s -> c) -> s -> d
+foldr2_left k z x r y =
+  case uncons y of
+    Nothing -> z
+    Just (y', ys') -> k x y' (r ys')
+
+{-# rules
+"cons foldr2/left" forall k z ys (g::forall b.(a->b->b)->b->b).
+  foldr2 k z (build g) ys = g (foldr2_left  k z) (\_ -> z) ys
+#-}
+
+zipWith
+  :: ( Cons s s a a
+     , Cons t t b b
+     , AsEmpty u, Cons u u c c
+     )
+  => (a -> b -> c) -> s -> t -> u
+zipWith f = go
+  where
+    go s t =
+      case uncons s of
+        Nothing -> Empty
+        Just (x, xs) ->
+          case uncons t of
+            Nothing -> Empty
+            Just (y, ys) -> f x y `cons` go xs ys
+{-# noinline [1] zipWith #-}
+
+{-# inline [0] zipWithFB #-}
+zipWithFB :: (a -> b -> c) -> (d -> e -> a) -> d -> e -> b -> c
+zipWithFB c f = \x y r -> (x `f` y) `c` r
+
+{-# rules
+"cons zipWith" [~1] forall f xs ys.
+  zipWith f xs ys = build (\c n -> foldr2 (zipWithFB c f) n xs ys)
+"cons zipWithList" [1] forall f. foldr2 (zipWithFB (:) f) [] = zipWith f
+
+"cons zipWith text" [~2]
+  zipWith @Data.Text.Text @_ @Data.Text.Text @_ @Data.Text.Text @_ =
+    Data.Text.zipWith
+"cons zipWith text eta" [~2]
+  forall f a b.
+  zipWith @Data.Text.Text @_ @Data.Text.Text @_ @Data.Text.Text @_ f a b =
+    Data.Text.zipWith f a b
+
+"cons zipWith ltext" [~2]
+  zipWith @Data.Text.Lazy.Text @_ @Data.Text.Lazy.Text @_ @Data.Text.Lazy.Text @_ =
+    Data.Text.Lazy.zipWith
+"cons zipWith ltext eta" [~2]
+  forall f a b.
+  zipWith @Data.Text.Lazy.Text @_ @Data.Text.Lazy.Text @_ @Data.Text.Lazy.Text @_ f a b =
+    Data.Text.Lazy.zipWith f a b
+
+"cons zipWith bs" [~2]
+  zipWith @BS.ByteString @_ @BS.ByteString @_ @[_] @_ =
+    BS.zipWith
+"cons zipWith bs eta" [~2]
+  forall f a b.
+  zipWith @BS.ByteString @_ @BS.ByteString @_ @[_] @_ f a b =
+    BS.zipWith f a b
+
+"cons zipWith lbs" [~2]
+  zipWith @LBS.ByteString @_ @LBS.ByteString @_ @[_] @_ =
+    LBS.zipWith
+"cons zipWith lbs eta" [~2]
+  forall f a b.
+  zipWith @LBS.ByteString @_ @LBS.ByteString @_ @[_] @_ f a b =
+    LBS.zipWith f a b
+
+"cons zipWith seq" [~2]
+  zipWith @(Seq _) @_ @(Seq _) @_ @(Seq _) @_ =
+    Data.Sequence.zipWith
+"cons zipWith seq eta" [~2]
+  forall f a b.
+  zipWith @(Seq _) @_ @(Seq _) @_ @(Seq _) @_ f a b =
+    Data.Sequence.zipWith f a b
+#-}
+
+stripSuffix :: (AsEmpty s, Eq s, Cons s s a a, Eq a) => s -> s -> Maybe s
+stripSuffix qs xs0 = go xs0 zs
+  where
+    zs = drp qs xs0
+
+    drp a b =
+      case uncons a of
+        Just (_, ps) ->
+          case uncons b of
+            Just (_, xs) -> drp ps xs
+            Nothing -> Empty
+        Nothing -> b
+
+    go a b =
+      case uncons b of
+        Just (_, ys) ->
+          case uncons a of
+            Just (_, xs) -> go xs ys
+            Nothing -> Nothing
+        Nothing -> zipWith const xs0 zs <$ guard (a == qs)
+{-# inline stripSuffix #-}

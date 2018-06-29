@@ -14,8 +14,11 @@ let
     overrides = self: super: {
       criterion = self.callHackage "criterion" "1.3.0.0" {};
       inspection-testing = self.callHackage "inspection-testing" "0.2.0.1" {};
-      weigh = self.callHackage "weigh" "0.0.12" {};
-    };
+    } //
+    (if compiler == "ghc843"
+     then {
+       base-compat = self.callHackage "base-compat" "0.9.3" {};
+     } else {});
   };
   
   drv = modifiedHaskellPackages.callPackage f {};

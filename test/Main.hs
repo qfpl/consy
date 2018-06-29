@@ -31,6 +31,7 @@ import qualified Data.Functor
 import qualified Data.List
 import qualified Data.Sequence
 import qualified Data.Text
+import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import Consy
 
@@ -204,6 +205,14 @@ listFoldrLength = Data.List.foldr (\_ -> (+1)) 0
 inspect ('consFoldrListLength === 'listFoldrLength)
 
 
+consMapFoldrTextLength, textMapFoldrLength :: (Char -> Char) -> Text -> Int
+consMapFoldrTextLength f = foldr (\_ -> (+1)) 0 . map f
+textMapFoldrLength f = Data.Text.foldr (\_ -> (+1)) 0 . Data.Text.map f
+
+-- not the same
+-- inspect ('consMapFoldrTextLength === 'textMapFoldrLength)
+
+
 consFilterPFilterQ, consFilterPQ, listFilterPQ
   :: (a -> Bool) -> (a -> Bool) -> [a] -> [a]
 consFilterPFilterQ p q xs = filter p (filter q xs)
@@ -313,6 +322,14 @@ lbsFoldrLength = Data.ByteString.Lazy.foldr (\_ -> (+1)) 0
 
 inspect ('consFoldrLengthLBS === 'lbsFoldrLength)
 
+
+consFoldrLengthLText, ltextFoldrLength :: Data.Text.Lazy.Text -> Int
+consFoldrLengthLText = foldr (\_ -> (+1)) 0
+ltextFoldrLength = Data.Text.Lazy.foldr (\_ -> (+1)) 0
+
+-- inspect ('consFoldrLengthLBS === 'lbsFoldrLength)
+
+
 consFoldrLengthSeq, seqFoldrLength :: Data.Sequence.Seq a -> Int
 consFoldrLengthSeq = foldr (\_ -> (+1)) 0
 seqFoldrLength = Data.Foldable.foldr (\_ -> (+1)) 0
@@ -342,6 +359,28 @@ consTakeSeq, seqTake :: Int -> Data.Sequence.Seq a -> Data.Sequence.Seq a
 consTakeSeq = take
 seqTake = Data.Sequence.take
 
+inspect ('consTakeSeq === 'seqTake)
+
+
+-- for some reason eta-reducing prevents it from inlining
+consZipWithList, listZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+consZipWithList f = zipWith f
+listZipWith f = go
+  where
+    go [] _ = []
+    go _ [] = []
+    go (x:xs) (y:ys) = f x y : go xs ys
+
+inspect ('consZipWithList === 'listZipWith)
+
+
+consAppendList, listAppend :: [a] -> [a] -> [a]
+consAppendList = append
+listAppend [] ys = ys
+listAppend (x:xs) ys = x : listAppend xs ys
+
+inspect ('consAppendList === 'listAppend)
+
 
 main :: IO ()
 main =
@@ -361,6 +400,8 @@ main =
       [ bench "cons length text" $ nf consLength input
       , bench "text length" $ nf textLength input
       , bench "cons foldr text" $ nf consFoldrLength input
+      , bench "text map foldr" $ nf (textMapFoldrLength succ) input
+      , bench "cons map foldr text" $ nf (consMapFoldrTextLength succ) input
       , bench "text foldr" $ nf textFoldrLength input
       , bench "cons foldl' text" $ nf consFoldl'Length input
       , bench "text foldl'" $ nf textFoldl'Length input
@@ -377,6 +418,11 @@ main =
       \input -> bgroup "lbs length"
       [ bench "cons foldr lbs" $ nf consFoldrLengthLBS input
       , bench "lbs foldr" $ nf lbsFoldrLength input
+      ]
+    , env (pure . Data.Text.Lazy.pack $ Data.List.replicate 1000 'a') $
+      \input -> bgroup "ltext length"
+      [ bench "cons foldr ltext" $ nf consFoldrLengthLText input
+      , bench "ltext foldr" $ nf ltextFoldrLength input
       ]
     , env (pure $ Data.List.replicate 1000 'a') $
       \input -> bgroup "list length"
