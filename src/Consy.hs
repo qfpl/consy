@@ -40,6 +40,7 @@ import Data.Maybe (Maybe(..))
 import Data.Ord ((<))
 import Data.Sequence (Seq)
 import Data.Text (Text)
+import Data.Vector (Vector)
 import GHC.Base (oneShot, seq)
 import GHC.Num ((+), (-))
 import GHC.Real (Integral, fromIntegral)
@@ -51,6 +52,7 @@ import qualified Data.Functor
 import qualified Data.Sequence
 import qualified Data.Text
 import qualified Data.Text.Lazy
+import qualified Data.Vector
 
 {-# inline [1] augment #-}
 augment :: Cons s s a a => (forall b. (a->b->b) -> b -> b) -> s -> s
@@ -81,7 +83,12 @@ foldr f z = go
   foldr f z (build g) = g f z
 
 "cons foldr text" [~2] foldr @Data.Text.Text = Data.Text.foldr
-"cons foldr text eta" [~2] forall f z xs. foldr @Data.Text.Text f z xs = Data.Text.foldr f z xs
+"cons foldr text eta" [~2] forall f z xs.
+  foldr @Data.Text.Text f z xs = Data.Text.foldr f z xs
+
+"cons foldr vector" [~2] foldr @(Vector _) = Data.Vector.foldr
+"cons foldr vector eta" [~2] forall f z xs.
+  foldr @(Vector _) f z xs = Data.Vector.foldr f z xs
 
 "cons foldr ltext" [~2] foldr @Data.Text.Lazy.Text = Data.Text.Lazy.foldr
 "cons foldr ltext eta" [~2] forall f z xs.
@@ -109,6 +116,10 @@ foldl' k z0 xs =
 "cons foldl' text" [~2] foldl' @Text @Char = Data.Text.foldl'
 "cons foldl' text eta" [~2] forall f z xs.
   foldl' @Text @Char f z xs = Data.Text.foldl' f z xs
+
+"cons foldl' vector" [~2] foldl' @(Vector _) = Data.Vector.foldl'
+"cons foldl' vector eta" [~2] forall f z xs.
+  foldl' @(Vector _) f z xs = Data.Vector.foldl' f z xs
 
 "cons foldl' seq" [~2] foldl' @(Seq _) = Data.Foldable.foldl'
 "cons foldl' seq eta" [~2] forall f z xs.
@@ -144,6 +155,15 @@ lenAcc !n s =
 
 "cons length text" length @Text = fromIntegral . Data.Text.length
 "cons length text eta" forall xs. length @Text xs = fromIntegral (Data.Text.length xs)
+
+"cons length ltext" length @Data.Text.Lazy.Text =
+  fromIntegral . Data.Text.Lazy.length
+"cons length ltext eta" forall xs.
+  length @Data.Text.Lazy.Text xs = fromIntegral (Data.Text.Lazy.length xs)
+
+"cons length vector" length @(Vector _) = fromIntegral . Data.Vector.length
+"cons length vector eta" forall xs.
+  length @(Vector _) xs = fromIntegral (Data.Vector.length xs)
 
 "cons length bs" length @BS.ByteString = BS.length
 "cons length bs eta" forall xs. length @BS.ByteString xs = fromIntegral (BS.length xs)
@@ -189,6 +209,9 @@ mapFB c f = \x ys -> c (f x) ys
 "cons map text" map @Text = Data.Text.map
 "cons map text eta" forall f xs. map @Text f xs = Data.Text.map f xs
 
+"cons map vector" map @(Vector _) = Data.Vector.map
+"cons map vector eta" forall f xs. map @(Vector _) f xs = Data.Vector.map f xs
+
 "cons map bs" map @BS.ByteString = BS.map
 "cons map bs eta" forall f xs. map @BS.ByteString f xs = BS.map f xs
 
@@ -228,6 +251,9 @@ filterFB c p x r
 
 "cons filter text" filter @Text @Char = Data.Text.filter
 "cons filter text eta" forall p xs. filter @Text @Char p xs = Data.Text.filter p xs
+
+"cons filter vector" filter @(Vector _) = Data.Vector.filter
+"cons filter vector eta" forall p xs. filter @(Vector _) p xs = Data.Vector.filter p xs
 
 "cons filter bs" filter @BS.ByteString = BS.filter
 "cons filter bs eta" forall p xs. filter @BS.ByteString p xs = BS.filter p xs
@@ -291,6 +317,13 @@ unsafeTake !m s =
 "cons take text" take @Text = Data.Text.take
 "cons take text eta" forall n xs. take @Text n xs = Data.Text.take n xs
 
+"cons take ltext" take @Data.Text.Lazy.Text = \n -> Data.Text.Lazy.take (fromIntegral n)
+"cons take ltext eta" forall n xs.
+  take @Data.Text.Lazy.Text n xs = Data.Text.Lazy.take (fromIntegral n) xs
+
+"cons take vector" take @(Vector _) = Data.Vector.take
+"cons take vector eta" forall n xs. take @(Vector _) n xs = Data.Vector.take n xs
+
 "cons take bs" take @BS.ByteString = BS.take . fromIntegral
 "cons take bs eta" forall n xs. take @BS.ByteString n xs = BS.take (fromIntegral n) xs
 
@@ -329,6 +362,10 @@ replicate = \n x -> take n (repeat x)
   replicate @Data.Text.Lazy.Text @Char n x =
     Data.Text.Lazy.replicate (fromIntegral n) (Data.Text.Lazy.singleton x)
 
+"cons replicate vector" [~2] replicate @(Vector _) = Data.Vector.replicate
+"cons replicate vector eta" [~2] forall n x.
+  replicate @(Vector _) n x = Data.Vector.replicate n x
+
 "cons replicate bs" [~2]
   replicate @BS.ByteString = \n x -> BS.replicate (fromIntegral n) x
 "cons replicate bs eta" [~2] forall n x.
@@ -358,6 +395,9 @@ append = go
 "cons append ltext" [~2] append @Data.Text.Lazy.Text = Data.Text.Lazy.append
 "cons append ltext eta" [~2] forall a b.
   append @Data.Text.Lazy.Text a b = Data.Text.Lazy.append a b
+
+"cons append vector" [~2] append @(Vector _) = (Data.Vector.++)
+"cons append vector eta" [~2] forall a b. append @(Vector _) a b = (Data.Vector.++) a b
 
 "cons append bs" [~2] append @BS.ByteString = BS.append
 "cons append bs eta" [~2] forall a b. append @BS.ByteString a b = BS.append a b

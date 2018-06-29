@@ -1,5 +1,5 @@
 { mkDerivation, base, bytestring, containers, criterion
-, inspection-testing, lens, stdenv, text
+, inspection-testing, lens, stdenv, text, vector
 }:
 mkDerivation {
   pname = "consy";
@@ -8,6 +8,7 @@ mkDerivation {
   libraryHaskellDepends = [ base bytestring containers lens text ];
   testHaskellDepends = [
     base bytestring containers criterion inspection-testing lens text
+    vector
   ];
   license = stdenv.lib.licenses.bsd3;
 }
