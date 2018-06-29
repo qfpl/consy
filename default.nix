@@ -9,6 +9,7 @@ let
   haskellPackages = if compiler == "default"
                        then pkgs.haskellPackages
                        else pkgs.haskell.packages.${compiler};
+  
   modifiedHaskellPackages = haskellPackages.override {
     overrides = self: super: {
       criterion = self.callHackage "criterion" "1.3.0.0" {};
