@@ -1,20 +1,12 @@
-Implementing the `Data.List` API using `Control.Lens.Cons`, aiming for equivalent
-performance or better.
+![Data61](http://i.imgur.com/uZnp9ke.png)
 
-Shortcut fusion is implemented for the API, and there are rewrite rules to change
-the Consy API functions into their more specialized versions, like
-`filter -> Data.Text.filter`.
+# `consy`
 
-There are inspection tests, benchmarks, and allocation tests in `test/`
+Implementing the `Data.List` API using `Control.Lens.Cons` without sacrificing
+performance.
 
----
+Instances for `[a]` should compile down to core similar to the native `Data.List`
+functions. Rewrite rules are used for other instances to rewrite to their efficient
+implementations.
 
-I had this idea after seeing the [TextualMonoid](https://hackage.haskell.org/package/monoid-subclasses/docs/Data-Monoid-Textual.html)
-class. It seems basically equivalent to
-
-```haskell
-class (Monoid s, Cons s s Char Char) => TextualMonoid s where
-```
-
-with appropriate laws regarding the interactions between `mappend`, `mempty`, `cons`,
-and `uncons`. 
+There are inspection tests and benchmarks in `test/`
