@@ -13,6 +13,7 @@ let
   modifiedHaskellPackages = haskellPackages.override {
     overrides = self: super: {
       criterion = self.callHackage "criterion" "1.3.0.0" {};
+      lens = self.callHackage "lens" "4.16.1" {};
       inspection-testing = self.callHackage "inspection-testing" "0.2.0.1" {};
     } //
     (if compiler == "ghc843"
