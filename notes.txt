@@ -1,0 +1,146 @@
+
+Consy.Basic
+Consy.Transformations
+Consy.Folds
+Consy.SpecialFolds
+Consy.AccumulatingMaps
+Consy.InfiniteLists
+Consy.Unfolding
+Consy.ExtractingSublists
+Consy.SublistsWithPredicates
+Consy.SearchingByEquality
+Consy.SearchingWithPredicate
+Consy.Indexing
+Consy.Zipping
+
+InspectionTests.Basic
+InspectionTests.Transformations
+InspectionTests.Folds
+InspectionTests.SpecialFolds
+InspectionTests.AccumulatingMaps
+InspectionTests.InfiniteLists
+InspectionTests.Unfolding
+InspectionTests.ExtractingSublists
+InspectionTests.SublistsWithPredicates
+InspectionTests.SearchingByEquality
+InspectionTests.SearchingWithPredicate
+InspectionTests.Indexing
+InspectionTests.Zipping
+
+
+
+
+
+Data.List functions
+
+====================
+(Basic) Basic functions
++ (++)
++ head
++ last
++ tail
++ init
+? uncons
++ null
++ length
+====================
+(Transformations) List transformations
++ map
++ reverse
++ intersperse
++ intercalate
++ transpose
++ subsequences
+permutations
+====================
+(Folds) Reducing lists (folds)
++ foldl
++ foldl'
++ foldl1
++ foldl1'
++ foldr
++ foldr1
+====================
+(SpecialFolds) Special folds
++ concat
++ concatMap
++ and
++ or
++ any
++ all
++ sum
++ product
++ maximum
++ minimum
+====================
+(AccumulatingMaps) Accumulating maps
+mapAccumL
+mapAccumR
+====================
+(InfiniteLists) Infinite lists
++ iterate
++ iterate'
++ repeat
++ replicate
++ cycle
+====================
+(Unfolding) Unfolding
++ unfoldr
+====================
+(ExtractingSublists) Sublists (Extracting sublists)
++ take
++ drop
++ splitAt
++ takeWhile
++ dropWhile
++ dropWhileEnd
++ span
++ break
++ stripPrefix
++ group
++ groupBy
++ inits
++ tails
+====================
+(SublistsWithPredicates) Sublists (Predicates)
++ isPrefixOf
++ isSuffixOf
++ isInfixOf
++ isSubsequenceOf
+====================
+(SearchingByEquality) Searching lists (Searching by equality)
++ elem
++ notElem
++ lookup
+====================
+(SearchingWithPredicate) Searching lists (Searching with a predicate)
++ find
++ filter
++ partition
+====================
+(Indexing) Indexing Sublists
++ (!!)
++ elemIndex
++ elemIndices
++ findIndex
++ findIndices
+====================
+(Zipping) Zipping and unzipping Sublist
++ zip
++ zip3
++ zip4
++ zip5
++ zip6
++ zip7
++ zipWith
++ zipWith3
++ zipWith4
++ zipWith5
++ zipWith6
++ zipWith7
++ unzip
++ unzip3
++ unzip4
++ unzip5
++ unzip6
++ unzip7

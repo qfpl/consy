@@ -83,6 +83,11 @@ main =
       [ bench "cons take seq" $ nf (consTakeSeq 500) input
       , bench "seq take" $ nf (seqTake 500) input
       ]
+    , env (pure . Data.Sequence.fromList $ Data.List.replicate 1000 (10::Int)) $
+      \input -> bgroup "seq drop"
+      [ bench "cons drop seq" $ nf (consDropSeq 500) input
+      , bench "seq drop" $ nf (seqDrop 500) input
+      ]
     , env (pure . pack $ Data.List.replicate 1000 'a') $
       \input -> bgroup "text filterMap"
       [ bench "cons" $ nf consFilterMapText input
