@@ -156,12 +156,11 @@ filterFB c p x r
 {-# inline [2] partition #-}
 -- partition :: (a -> Bool) -> [a] -> ([a], [a])
 partition :: (AsEmpty s, Cons s s a a) => (a -> Bool) -> s -> (s, s)
-partition p s = (filter p s, filter (not . p) s)
--- partition p = foldr (select p) (Empty, Empty)
---   where
---     select :: (AsEmpty s, Cons s s a a) => (a -> Bool) -> a -> (s, s) -> (s, s)
---     select p x ~(ts,fs) | p x       = (x `cons` ts, fs)
---                         | otherwise = (ts, x `cons` fs)
+partition = \p -> foldr (select p) (Empty, Empty)
+  where
+    select p x ~(ts,fs)
+      | p x = (x `cons` ts,fs)
+      | otherwise = (ts, x `cons` fs)
 
 {-# rules
 "cons partition text"

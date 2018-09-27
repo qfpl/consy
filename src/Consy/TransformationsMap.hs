@@ -42,13 +42,16 @@ import Consy.Folds (build, foldr)
 
 {-# inline [0] map #-}
 -- map ::  (a -> b) -> [a] -> [b]
-map :: (AsEmpty s, Cons s s a a) => (a -> a) -> s -> s
-map f = go
-  where
-    go s =
-      case uncons s of
-        Nothing -> Empty
-        Just (x, xs) -> f x `cons` go xs
+map :: (AsEmpty s, AsEmpty t, Cons s s a a, Cons t t b b) => (a -> b) -> s -> t
+map =
+  \f ->
+    let
+      go s =
+        case uncons s of
+          Nothing -> Empty
+          Just (x, xs) -> f x `cons` go xs
+    in
+      go
 
 {-# inline [0] mapFB #-}
 -- mapFB ::  (elt -> lst -> lst) -> (a -> elt) -> a -> lst -> lst
@@ -61,7 +64,7 @@ mapFB c f = \x ys -> c (f x) ys
     map f xs = build (\c n -> foldr (mapFB c f) n xs)
 "cons mapList list" [1]
     forall f.
-    foldr (mapFB (:) f) [] = map f
+    foldr (mapFB (:) f) [] = map @[_] @[_] f
 
 "cons mapFB"
     forall c f g.

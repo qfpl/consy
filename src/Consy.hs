@@ -1,9 +1,4 @@
 {-# language NoImplicitPrelude #-}
--- {-# language BangPatterns #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
--- {-# language TypeApplications #-}
 module Consy
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -23,7 +18,6 @@ module Consy
   , intercalate
   , transpose
   , subsequences
-  -- , permutations
   -- ,------
   , augment
   , build
@@ -115,7 +109,7 @@ import Control.Lens.Empty
 
 import Consy.Basic                  -- done
 import Consy.TransformationsMap     -- done, contains only `map` due to recursive import
-import Consy.Transformations          -- missing permutations
+import Consy.Transformations
 import Consy.Folds
 import Consy.SpecialFolds           -- done
 -- import Consy.AccumulatingMaps      -- missing all

@@ -5,10 +5,6 @@
 
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
--- {-# language BangPatterns #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
 module Consy.Unfolding
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -37,11 +33,15 @@ import Consy.Folds (build)
 {-# inline [2] unfoldr #-}
 -- unfoldr :: (b -> Maybe (a, b)) -> b -> [a]
 unfoldr :: (AsEmpty s, Cons s s a a) => (b -> Maybe (a, b)) -> b -> s
-unfoldr f b0 = build (\c n ->
-  let go b = case f b of
-               Just (a, new_b) -> a `c` go new_b
-               Nothing         -> n
-  in go b0)
+unfoldr =
+  \f b0 ->
+  build
+    (\c n ->
+       let
+         go b = case f b of
+           Just (a, new_b) -> a `c` go new_b
+           Nothing         -> n
+       in go b0)
 {-# rules
 "cons unfoldr text" [~2]
     unfoldr @Text = \f -> Data.Text.unfoldr f

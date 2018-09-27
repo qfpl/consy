@@ -60,16 +60,22 @@ import Consy.TransformationsMap (map)
 {-# inline [~1]  (!!) #-}
 -- (!!) :: [a] -> Int -> a
 (!!) :: (AsEmpty s, Cons s s a a ) => s -> Int -> a
-(!!) = go
+(!!) =
+  \s !n ->
+    if n < 0
+    then errorWithoutStackTrace "Prelude.!!: negative index"
+    else
+      foldr
+        (\x r k ->
+            case k of
+              0 -> x
+              _ -> r (k-1))
+        tooLarge
+        s
+        n
   where
-    go s !n
-      | n < 0 = errorWithoutStackTrace "Prelude.!!: negative index"
-      | otherwise = foldr (\x r k -> case k of
-                                   0 -> x
-                                   _ -> r (k-1)) tooLarge s n
-
-tooLarge :: Int -> a
-tooLarge _ = errorWithoutStackTrace "Prelude.!!: index too large"
+    tooLarge :: Int -> a
+    tooLarge _ = errorWithoutStackTrace "Prelude.!!: index too large"
 
 
 {-# inline [2] elemIndex #-}

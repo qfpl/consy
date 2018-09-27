@@ -19,9 +19,6 @@
 {-# language FlexibleContexts #-}
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
 module Consy.ExtractingSublists
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -49,7 +46,7 @@ import Data.Int (Int)
 import Data.Eq (Eq(..))
 import Data.Function ((.))
 import Data.Maybe (Maybe(..))
-import Data.Ord ((<))
+import Data.Ord ((<=), (<))
 import Data.Sequence (Seq)
 import Data.Text (Text)
 import Data.Vector (Vector)
@@ -174,38 +171,38 @@ unsafeDrop !m s =
         Just (_, xs) -> unsafeDrop (m - 1) xs
 
 {-# rules
-"cons drop text"
-    drop @Text = Data.Text.drop . fromIntegral
-"cons drop text eta"
+"cons drop text" [~1]
+    drop @Text = Data.Text.drop
+"cons drop text eta" [~1]
     forall n xs.
     drop @Text n xs = Data.Text.drop n xs
 
-"cons drop ltext"
+"cons drop ltext" [~1]
     drop @Data.Text.Lazy.Text = Data.Text.Lazy.drop . fromIntegral
-"cons drop ltext eta"
+"cons drop ltext eta" [~1]
     forall n xs.
     drop @Data.Text.Lazy.Text n xs = Data.Text.Lazy.drop (fromIntegral n) xs
 
-"cons drop vector"
-    drop @(Vector _) = Data.Vector.drop . fromIntegral
-"cons drop vector eta"
+"cons drop vector" [~1]
+    drop @(Vector _) = Data.Vector.drop
+"cons drop vector eta" [~1]
     forall n xs.
     drop @(Vector _) n xs = Data.Vector.drop n xs
 
-"cons drop bs"
-    drop @BS.ByteString = BS.drop . fromIntegral
-"cons drop bs eta"
+"cons drop bs" [~1]
+    drop @BS.ByteString = BS.drop
+"cons drop bs eta" [~1]
     forall n xs.
-    drop @BS.ByteString n xs = BS.drop (fromIntegral n) xs
+    drop @BS.ByteString n xs = BS.drop n xs
 
-"cons drop bslazy"
+"cons drop bslazy" [~1]
     drop @LBS.ByteString = LBS.drop . fromIntegral
-"cons drop bslazy eta"
+"cons drop bslazy eta" [~1]
     forall n xs. drop @LBS.ByteString n xs = LBS.drop (fromIntegral n) xs
 
-"cons drop seq"
+"cons drop seq" [~1]
     drop @(Seq _) = Data.Sequence.drop
-"cons drop seq eta"
+"cons drop seq eta" [~1]
     forall n xs.
     drop @(Seq _) n xs = Data.Sequence.drop n xs
 #-}
@@ -214,31 +211,25 @@ unsafeDrop !m s =
 {-# inline [2] splitAt #-}
 -- splitAt :: Int -> [a] -> ([a], [a])
 splitAt :: (AsEmpty s, Cons s s a a) => Int -> s -> (s, s)
-splitAt n xs = (take n xs, drop n xs)
--- -- THIS BELOW IMPLEMENTATION is equal to the similar splitAt implemantation
--- -- however all the other Text, BS,... fails
--- splitAt = go
---   where
---     go !n = \ls ->
---       case n <= 0 of
---         True -> (Empty, ls)
---         otherwise -> splitAt' n ls
---
--- splitAt' :: (AsEmpty s, Cons s s a a) => Int -> s -> (s, s)
--- splitAt' = go
---   where
---     go m = \s ->
---       case uncons s of
---         Empty -> (Empty, Empty)
---         Just (x,xs) -> case m of
---                         1 -> (x `cons` Empty, xs)
---                         otherwise -> (x `cons` xs', xs'')
---                           where
---                             (xs', xs'') = go (m - 1) xs
+splitAt = \n ls ->
+  if n <= 0
+  then (Empty, ls)
+  else splitAt' n ls
+    where
+      splitAt' m a =
+        case uncons a of
+          Nothing -> (Empty, Empty)
+          Just (x, xs)
+            | 1 <- m -> (cons x Empty, xs)
+            | otherwise ->
+              let
+                (xs', xs'') = splitAt' (m - 1) xs
+              in
+                (x `cons` xs', xs'')
 
 {-# rules
 "cons splitAt text"
-    splitAt @Text = \n -> Data.Text.splitAt (fromIntegral n)
+    splitAt @Text = Data.Text.splitAt
 "cons splitAt text eta"
     forall n xs.
     splitAt @Text n xs = Data.Text.splitAt n xs
@@ -256,10 +247,10 @@ splitAt n xs = (take n xs, drop n xs)
     splitAt @(Vector _) n xs = Data.Vector.splitAt n xs
 
 "cons splitAt bs"
-    splitAt @BS.ByteString = BS.splitAt . fromIntegral
+    splitAt @BS.ByteString = BS.splitAt
 "cons splitAt bs eta"
     forall n xs.
-    splitAt @BS.ByteString n xs = BS.splitAt (fromIntegral n) xs
+    splitAt @BS.ByteString n xs = BS.splitAt n xs
 
 "cons splitAt bslazy"
     splitAt @LBS.ByteString = \n -> LBS.splitAt (fromIntegral n)
@@ -588,7 +579,7 @@ groupBy = \p -> go p
 {-# noinline inits #-}
 -- inits :: [a] -> [[a]]
 inits :: (AsEmpty s, AsEmpty t, Cons s s a a, Cons t t s s) => s -> t
--- -- inits = map toListSB . scanl' snocSB emptySB
+-- inits = map toListSB . scanl' snocSB emptySB
 inits lst = build (\c n ->
   let initsGo hs xs = hs `c` case uncons xs of
                             Empty -> n

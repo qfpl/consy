@@ -5,7 +5,6 @@
 + last
 + tail
 + init
-? uncons
 + null
 + length
 -}
@@ -13,19 +12,14 @@
 {-# language BangPatterns #-}
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
 module Consy.Basic
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
-  --, (++)
   , append
   , head
   , last
   , tail
   , init
-  -- , uncons
   , null
   , length
   )
@@ -51,7 +45,7 @@ import qualified Data.Text
 import qualified Data.Text.Lazy
 import qualified Data.Vector
 
-import Consy.Folds (augment, build, foldr)
+import Consy.Folds (augment, build, foldr, foldl)
 
 
 {- ___ Basic functions ______________________________________________________ -}
@@ -113,14 +107,11 @@ append = go
 
 {-# noinline [1] head #-}
 -- head :: [a] -> a
-head :: (Cons s s a a) => s -> a
-head s =
+head :: Cons s s a a => s -> a
+head = \s ->
   case uncons s of
-    Nothing -> badHead
+    Nothing -> errorEmptyList "head"
     Just (x, _) -> x
-
-badHead :: a
-badHead = errorEmptyList "head"
 
 {-# rules
 "cons head/build"
@@ -165,21 +156,9 @@ badHead = errorEmptyList "head"
 {-# inline [1] last #-}
 -- last :: [a] -> a
 last :: (AsEmpty s, Cons s s a a) => s -> a
-last = go
- where
-   go s =
-     case uncons s of
-       Nothing -> errorEmptyList "tail"
-       Just (x, Empty) -> x
-       Just (_, xs) -> go xs
+last = \xs -> foldl (\_ x -> x) (errorEmptyList "last") xs
 
 {-# rules
--- QUESTION: not sure about 'cons last' rule
--- "cons last" [~1]
---     forall xs.
---     last xs = foldr (\_ x -> x) (errorEmptyList "tail")  xs
--- "cons lastList" [1]
---     foldr (\_ x -> x) (errorEmptyList "tail") = last
 
 "cons last text" [~2]
    last @Text = Data.Text.last
@@ -217,7 +196,7 @@ last = go
 {-# inline [1] tail #-}
 -- tail :: [a] -> [a]
 tail :: (Cons s s a a) => s -> s
-tail s =
+tail = \s ->
   case uncons s of
     Nothing -> errorEmptyList "tail"
     Just (_, xs) -> xs

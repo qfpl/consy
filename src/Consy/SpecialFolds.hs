@@ -51,13 +51,14 @@ import GHC.Num (Num, (+), (*))
 
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.ByteString as BS
+import qualified Data.Foldable
 import qualified Data.Sequence
 import qualified Data.Text
 import qualified Data.Text.Lazy
 import qualified Data.Vector
 
 import Consy.Basic (append)
-import Consy.Folds (build, foldl1, foldr)
+import Consy.Folds (build, foldl, foldl1, foldr)
 
 
 {- ___ Special folds ________________________________________________________ -}
@@ -198,18 +199,18 @@ or = foldr (||) False
 -- any :: (a -> Bool) -> [a] -> Bool
 -- any :: Foldable t => (a -> Bool) -> t a -> Bool
 any :: (AsEmpty s, Cons s s a a) => (a -> Bool) -> s -> Bool
--- any p = or . map p
 any p = go
   where
-  go s =
-    case uncons s of
-      Nothing -> False
-      Just (x, xs) -> p x || go xs
+    {-# inline [~2] go #-}
+    go s =
+      case uncons s of
+        Nothing -> False
+        Just (x, xs) -> p x || go xs
 
 {-# rules
 "cons any/build"
-    forall p (g::forall b.(a->b->b)->b->b).
-    any p (build g) = g ((||) . p) False
+    forall (p::a->Bool) (g::forall b.([x]->b->b)->b->b).
+    any @_ @[_] p (build g) = g ((||) . p) False
 
 "cons any text" [~1]
     any @Text = \p -> Data.Text.any p
@@ -294,14 +295,8 @@ all p = go
 
 {-# inline [2] sum #-}
 -- sum :: (Num a) => [a] -> a
-sum :: (Num a,  AsEmpty s, Cons s s a a) => s -> a
--- sum =  foldl (+) 0
-sum = go
-  where
-  go s =
-    case uncons s of
-      Nothing -> 0
-      Just (x, xs) -> x + go xs
+sum :: (AsEmpty s, Cons s s a a, Num a) => s -> a
+sum = \xs -> foldl (+) 0 xs
 
 {-# rules
 "cons sum vector" [~1]
@@ -310,133 +305,123 @@ sum = go
     forall xs.
     sum @(Vector _) xs = Data.Vector.sum xs
 
--- "cons sum seq" [~1]
---     sum @(Seq _) = Data.Foldable.sum
--- "cons sum seq eta" [~1]
---     forall xs.
---     sum @(Seq _) xs = Data.Foldable.sum xs
+"cons sum seq" [~1]
+    sum @(Seq _) = Data.Foldable.sum
+"cons sum seq eta" [~1]
+    forall xs.
+    sum @(Seq _) xs = Data.Foldable.sum xs
 #-}
 
 
 {-# inline [2] product #-}
 -- product :: (Num a) => [a] -> a
-product :: (Num a,  AsEmpty s, Cons s s a a) => s -> a
--- product =  foldl (*) 1
-product = go
-  where
-  go s =
-    case uncons s of
-      Nothing -> 1
-      Just (x, xs) -> x * go xs
+product :: (AsEmpty s, Cons s s a a, Num a) => s -> a
+product = \xs -> foldl (*) 1 xs
 
 {-# rules
-"cons product vector" [~1]
+"cons product vector" [~2]
     product @(Vector _) = Data.Vector.product
-"cons product vector eta" [~1]
+"cons product vector eta" [~2]
     forall xs.
     product @(Vector _) xs = Data.Vector.product xs
 
--- "cons product seq" [~1]
---     product @(Seq _) = Data.Foldable.product
--- "cons product seq eta" [~1]
---     forall xs.
---     product @(Seq _) xs = Data.Foldable.product xs
+"cons product seq" [~2]
+  product @(Seq _) = Data.Foldable.product
+"cons product seq eta" [~2]
+  forall xs.
+  product @(Seq _) xs = Data.Foldable.product xs
 #-}
 
 
 {-# inline [2] maximum #-}
 -- maximum :: (Ord a) => [a] -> a
-maximum :: (Ord a, Cons s s a a) => s -> a
-maximum = go
-  where
-    go a =
-      case uncons a of
-        Nothing -> errorEmptyList "maximum"
-        Just _ -> foldl1 max a
+maximum :: (Cons s s a a, Ord a) => s -> a
+maximum = \a ->
+  case uncons a of
+    Nothing -> errorEmptyList "maximum"
+    Just _ -> foldl1 max a
 
 {-# rules
-"cons maximum text" [~1]
-    maximum @Char = Data.Text.maximum
-"cons maximum text eta" [~1]
+"cons maximum text" [~2]
+    maximum @Text = Data.Text.maximum
+"cons maximum text eta" [~2]
     forall xs.
-    maximum @Char xs = Data.Text.maximum xs
+    maximum @Text xs = Data.Text.maximum xs
 
-"cons maximum ltext" [~1]
-    maximum @Char = Data.Text.Lazy.maximum
-"cons maximum ltext eta" [~1]
+"cons maximum ltext" [~2]
+    maximum @Data.Text.Lazy.Text = Data.Text.Lazy.maximum
+"cons maximum ltext eta" [~2]
     forall xs.
-    maximum @Char xs = Data.Text.Lazy.maximum xs
+    maximum @Data.Text.Lazy.Text xs = Data.Text.Lazy.maximum xs
 
--- "cons maximum vector" [~1]
---     maximum @(Vector _) = Data.Vector.maximum
--- "cons maximum vector eta" [~1]
---     forall xs.
---     maximum @(Vector _) xs = Data.Vector.maximum xs
+"cons maximum vector" [~2]
+  maximum @(Vector _) = Data.Vector.maximum
+"cons maximum vector eta" [~2]
+  forall xs.
+  maximum @(Vector _) xs = Data.Vector.maximum xs
 
-"cons maximum bs" [~1]
-    maximum @Word8 = BS.maximum
-"cons maximum bs eta" [~1]
+"cons maximum bs" [~2]
+    maximum @BS.ByteString = BS.maximum
+"cons maximum bs eta" [~2]
     forall xs.
-    maximum @Word8 xs = BS.maximum xs
+    maximum @BS.ByteString xs = BS.maximum xs
 
-"cons maximum bslazy" [~1]
-    maximum @Word8 = LBS.maximum
-"cons maximum bslazy eta" [~1]
+"cons maximum bslazy" [~2]
+    maximum @LBS.ByteString = LBS.maximum
+"cons maximum bslazy eta" [~2]
     forall xs.
-    maximum @Word8 xs = LBS.maximum xs
+    maximum @LBS.ByteString xs = LBS.maximum xs
 
--- "cons maximum seq" [~1]
---     maximum @(Seq _) = Data.Foldable.maximum
--- "cons maximum seq eta" [~1]
---     forall xs.
---     maximum @(Seq _) xs = Data.Foldable.maximum xs
+"cons maximum seq" [~2]
+    maximum @(Seq _) = Data.Foldable.maximum
+"cons maximum seq eta" [~2]
+    forall xs.
+    maximum @(Seq _) xs = Data.Foldable.maximum xs
 #-}
 
 
 {-# inline [2] minimum #-}
 -- minimum :: (Ord a) => [a] -> a
-minimum :: (Ord a, Cons s s a a) => s -> a
-minimum = go
-  where
-    go a =
-      case uncons a of
-        Nothing -> errorEmptyList "minimum"
-        Just _ -> foldl1 min a
+minimum :: (Cons s s a a, Ord a) => s -> a
+minimum = \a ->
+  case uncons a of
+    Nothing -> errorEmptyList "minimum"
+    Just _ -> foldl1 min a
 
 {-# rules
-"cons minimum text" [~1]
-    minimum @Char = Data.Text.minimum
-"cons minimum text eta" [~1]
+"cons minimum text" [~2]
+    minimum @Text = Data.Text.minimum
+"cons minimum text eta" [~2]
     forall xs.
-    minimum @Char xs = Data.Text.minimum xs
+    minimum @Text xs = Data.Text.minimum xs
 
-"cons minimum ltext" [~1]
-    minimum @Char = Data.Text.Lazy.minimum
-"cons minimum ltext eta" [~1]
+"cons minimum ltext" [~2]
+    minimum @Data.Text.Lazy.Text = Data.Text.Lazy.minimum
+"cons minimum ltext eta" [~2]
     forall xs.
-    minimum @Char xs = Data.Text.Lazy.minimum xs
+    minimum @Data.Text.Lazy.Text xs = Data.Text.Lazy.minimum xs
 
--- "cons minimum vector" [~1]
---     minimum @(Vector _) = Data.Vector.minimum
--- "cons minimum vector eta" [~1]
---     forall xs.
---     minimum @(Vector _) xs = Data.Vector.minimum xs
-
-"cons minimum bs" [~1]
-    minimum @Word8 = BS.minimum
-"cons minimum bs eta" [~1]
+"cons minimum vector" [~2]
+    minimum @(Vector _) = Data.Vector.minimum
+"cons minimum vector eta" [~2]
     forall xs.
-    minimum @Word8 xs = BS.minimum xs
+    minimum @(Vector _) xs = Data.Vector.minimum xs
 
-"cons minimum bslazy" [~1]
-    minimum @Word8 = LBS.minimum
-"cons minimum bslazy eta" [~1]
+"cons minimum bs" [~2]
+    minimum @BS.ByteString = BS.minimum
+"cons minimum bs eta" [~2]
     forall xs.
-    minimum @Word8 xs = LBS.minimum xs
+    minimum @BS.ByteString xs = BS.minimum xs
 
--- "cons minimum seq" [~1]
---     minimum @(Seq _) = Data.Foldable.minimum
--- "cons minimum seq eta" [~1]
---     forall xs.
---     minimum @(Seq _) xs = Data.Foldable.minimum xs
+"cons minimum bslazy" [~2]
+    minimum @LBS.ByteString = LBS.minimum
+"cons minimum bslazy eta" [~2]
+    forall xs.
+    minimum @LBS.ByteString xs = LBS.minimum xs
+
+"cons minimum seq" [~2]
+    minimum @(Seq _) = Data.Foldable.minimum
+"cons minimum seq eta" [~2]
+    forall xs.
+    minimum @(Seq _) xs = Data.Foldable.minimum xs
 #-}
