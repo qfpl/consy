@@ -18,7 +18,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Consy
-  build-depends:       base >=4.9 && <5
+  build-depends:       base >=4.10 && <5
                      , bytestring >=0.10 && <0.11
                      , containers >=0.5 && <0.7
                      , lens >=4.17 && <4.18
@@ -31,7 +31,7 @@ library consy-inspection-tests
   exposed-modules:     InspectionTests
   hs-source-dirs:      tests/inspection
   build-depends:       consy
-                     , base >=4.9 && <5
+                     , base >=4.10 && <5
                      , bytestring >=0.10 && <0.11
                      , inspection-testing >=0.2 && <0.4
                      , lens >=4.17 && <4.18
@@ -46,7 +46,7 @@ test-suite consy-tests
   hs-source-dirs:      tests
   build-depends:       consy
                      , consy-inspection-tests
-                     , base >=4.9 && <5
+                     , base >=4.10 && <5
   ghc-options:         -O
   default-language:    Haskell2010
 
@@ -56,7 +56,7 @@ benchmark consy-benchmarks
   hs-source-dirs:      tests/benchmarks
   build-depends:       consy
                      , consy-inspection-tests
-                     , base >=4.9 && <5
+                     , base >=4.10 && <5
                      , bytestring >=0.10 && <0.11
                      , criterion >=1.3 && <1.6
                      , inspection-testing >=0.2 && <0.4
