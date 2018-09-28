@@ -15,6 +15,7 @@ maintainer:          isaace71295@gmail.com
 build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
+tested-with:         GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.1
 
 library
   exposed-modules:     Consy
