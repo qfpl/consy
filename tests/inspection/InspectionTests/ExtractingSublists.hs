@@ -18,7 +18,7 @@
 {-# language TemplateHaskell #-}
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-rule-firings -ddump-to-file -ddump-simpl -ddump-simpl-stats  #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.ExtractingSublists where
 
 import Control.Applicative (ZipList(..))
@@ -55,7 +55,10 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
+
+import Orphans
 
 
 {- take -}
@@ -86,36 +89,30 @@ consTakeText'' = take 10 (pack "bbbb")
 textTake'' = Data.Text.take 10 (pack "bbbb")
 inspect ('consTakeText'' === 'textTake'')
 
--- -- FAILS   Int vs Int64
--- consTakeLazyText, lazyTextTake :: Int64 -> Data.Text.Lazy.Text -> Data.Text.Lazy.Text
--- consTakeLazyText = \n -> take (fromIntegral n)
--- lazyTextTake = Data.Text.Lazy.take
--- inspect ('consTakeLazyText === 'lazyTextTake)
+consTakeLazyText, lazyTextTake :: Int -> Data.Text.Lazy.Text -> Data.Text.Lazy.Text
+consTakeLazyText = take
+lazyTextTake = \n -> Data.Text.Lazy.take (fromIntegral n)
+inspect ('consTakeLazyText === 'lazyTextTake)
 
--- -- FAILS
--- consTakeVector, vectorTake :: Int -> Vector a -> Vector a
--- consTakeVector = take
--- vectorTake = Data.Vector.take
--- inspect ('consTakeVector === 'vectorTake)
+consTakeVector, vectorTake :: Int -> Vector a -> Vector a
+consTakeVector = take
+vectorTake = Data.Vector.take
+inspect ('consTakeVector === 'vectorTake)
 
 consTakeBS, bsTake :: Int -> Data.ByteString.ByteString -> Data.ByteString.ByteString
 consTakeBS = take
 bsTake = Data.ByteString.take
 inspect ('consTakeBS === 'bsTake)
 
--- -- FAILS   Int vs Int64
--- consTakeLBS, lbsTake :: Int64 -> Data.ByteString.Lazy.ByteString -> Data.ByteString.Lazy.ByteString
--- consTakeLBS = take . fromIntegral
--- lbsTake = Data.ByteString.Lazy.take
--- inspect ('consTakeLBS === 'lbsTake)
+consTakeLBS, lbsTake :: Int64 -> Data.ByteString.Lazy.ByteString -> Data.ByteString.Lazy.ByteString
+consTakeLBS = take . fromIntegral
+lbsTake = \n -> Data.ByteString.Lazy.take (fromIntegral n)
+inspect ('consTakeLBS === 'lbsTake)
 
--- {-# noinline consTakeSeq #-}
--- {-# noinline seqTake #-}
--- -- FAILS
--- consTakeSeq, seqTake :: Int -> Data.Sequence.Seq a -> Data.Sequence.Seq a
--- consTakeSeq = take
--- seqTake = Data.Sequence.take
--- inspect ('consTakeSeq === 'seqTake)
+consTakeSeq, seqTake :: Int -> Data.Sequence.Seq a -> Data.Sequence.Seq a
+consTakeSeq = take
+seqTake = Data.Sequence.take
+inspect ('consTakeSeq === 'seqTake)
 
 consMapTakeList, listMapTake :: (a -> a) -> Int -> [a] -> [a]
 consMapTakeList f n = map f . take n
@@ -132,10 +129,6 @@ listMapTake f !n s
             -- It's flipped because of the take + unsafeTakeList rules
             _ -> f x : go xs (n-1)
 inspect ('consMapTakeList === 'listMapTake)
-
-instance AsEmpty (ZipList a) where
-  _Empty = nearly (ZipList []) (Data.List.null . getZipList)
-  {-# inline _Empty #-}
 
 consTakeZipList, zipListTake :: Int -> ZipList a -> ZipList a
 consTakeZipList n = take n
@@ -171,28 +164,25 @@ consDropText'' = drop 10 (pack "bbbb")
 textDrop'' = Data.Text.drop 10 (pack "bbbb")
 inspect ('consDropText'' === 'textDrop'')
 
--- -- FAILS   Int vs Int64
--- consDropLazyText, lazyTextDrop :: Int64 -> Data.Text.Lazy.Text -> Data.Text.Lazy.Text
--- consDropLazyText = drop . fromIntegral
--- lazyTextDrop = Data.Text.Lazy.drop
--- inspect ('consDropLazyText === 'lazyTextDrop)
+consDropLazyText, lazyTextDrop :: Int -> Data.Text.Lazy.Text -> Data.Text.Lazy.Text
+consDropLazyText = drop
+lazyTextDrop = Data.Text.Lazy.drop . fromIntegral
+inspect ('consDropLazyText === 'lazyTextDrop)
 
--- -- FAILS
--- consDropVector, vectorDrop :: Int -> Vector a -> Vector a
--- consDropVector = drop
--- vectorDrop = Data.Vector.drop
--- inspect ('consDropVector === 'vectorDrop)
+consDropVector, vectorDrop :: Int -> Vector a -> Vector a
+consDropVector = drop
+vectorDrop = Data.Vector.drop
+inspect ('consDropVector === 'vectorDrop)
 
 consDropBS, bsDrop :: Int -> Data.ByteString.ByteString -> Data.ByteString.ByteString
 consDropBS = drop
 bsDrop = Data.ByteString.drop
 inspect ('consDropBS === 'bsDrop)
 
--- -- FAILS   Int vs Int64
--- consDropLBS, lbsDrop :: Int64 -> Data.ByteString.Lazy.ByteString -> Data.ByteString.Lazy.ByteString
--- consDropLBS = drop . fromIntegral
--- lbsDrop = Data.ByteString.Lazy.drop
--- inspect ('consDropLBS === 'lbsDrop)
+consDropLBS, lbsDrop :: Int -> Data.ByteString.Lazy.ByteString -> Data.ByteString.Lazy.ByteString
+consDropLBS = drop
+lbsDrop = \n -> Data.ByteString.Lazy.drop (fromIntegral n)
+inspect ('consDropLBS === 'lbsDrop)
 
 {-# noinline consDropSeq #-}
 {-# noinline seqDrop #-}
@@ -205,30 +195,24 @@ inspect ('consDropSeq === 'seqDrop)
 {- splitAt -}
 consSplitAtList, listSplitAt :: Int -> [a] -> ([a], [a])
 consSplitAtList = splitAt
-listSplitAt n xs = (Data.List.take n xs, Data.List.drop n xs)
--- -- FAILS
--- -- THIS BELOW IMPLEMENTATION is equal to the similar splitAt implemantation
--- -- however all the other Text, BS,... fails as these modules use
--- -- the (take, drop) implementation
--- listSplitAt = go
---   where
---     go !n = \ls ->
---       case n <= 0 of
---         True -> ([], ls)
---         otherwise -> splitAt' n ls
---
--- splitAt' :: Int -> [a] -> ([a], [a])
--- splitAt' = go
---   where
---     go m = \s ->
---       case s of
---         [] -> ([], [])
---         (x:xs) -> case m of
---                     1 -> ([x], xs)
---                     otherwise -> (x:xs', xs'')
---                       where
---                         (xs', xs'') = go (m - 1) xs
--- inspect ('consSplitAtList === 'listSplitAt)
+listSplitAt n ls
+  | n <= 0 = ([], ls)
+  | otherwise = splitAt' n ls
+    where
+      splitAt' _ [] = ([], [])
+      splitAt' 1 (x:xs) = ([x], xs)
+      splitAt' m (x:xs) =
+        let
+          (xs', xs'') = splitAt' (m - 1) xs
+        in
+          (x:xs', xs'')
+{-
+the core from these two functions only differ by a single line- in the Cons-based version
+'n' is unpacked and repacked after its comparison, but in the List-based version the 'n'
+is preserved using 'case n of wild'. The performance difference is negligable
+
+inspect ('consSplitAtList ==- 'listSplitAt)
+-}
 
 consSplitAtText, textSplitAt :: Int -> Text -> (Text, Text)
 consSplitAtText = splitAt
@@ -260,11 +244,10 @@ consSplitAtBS = splitAt
 bsSplitAt = Data.ByteString.splitAt
 inspect ('consSplitAtBS === 'bsSplitAt)
 
--- -- FAILS   Int vs Int64
--- consSplitAtLBS, lbsSplitAt :: Int64 -> Data.ByteString.Lazy.ByteString -> (Data.ByteString.Lazy.ByteString, Data.ByteString.Lazy.ByteString)
--- consSplitAtLBS = splitAt . fromIntegral
--- lbsSplitAt = Data.ByteString.Lazy.splitAt
--- inspect ('consSplitAtLBS === 'lbsSplitAt)
+consSplitAtLBS, lbsSplitAt :: Int -> Data.ByteString.Lazy.ByteString -> (Data.ByteString.Lazy.ByteString, Data.ByteString.Lazy.ByteString)
+consSplitAtLBS = splitAt
+lbsSplitAt = \n -> Data.ByteString.Lazy.splitAt (fromIntegral n)
+inspect ('consSplitAtLBS === 'lbsSplitAt)
 
 consSplitAtSeq, seqSplitAt :: Int -> Data.Sequence.Seq a -> (Data.Sequence.Seq a, Data.Sequence.Seq a)
 consSplitAtSeq = splitAt
@@ -560,14 +543,14 @@ inspect ('consGroupLBS === 'lbsGroup)
 
 
 {- inits -}
--- -- FAILS
--- consInitsList, listInits :: [a] -> [[a]]
--- consInitsList = inits
--- listInits lst =  build (\c n ->
---   let initsGo hs xs = hs `c` case xs of
---                             [] -> n
---                             (x' : xs') -> initsGo (hs ++ [x']) xs'
---   in initsGo [] lst)
+-- FAIL
+consInitsList, listInits :: [a] -> [[a]]
+consInitsList = inits
+listInits lst =  build (\c n ->
+  let initsGo hs xs = hs `c` case xs of
+                            [] -> n
+                            (x' : xs') -> initsGo (hs ++ [x']) xs'
+  in initsGo [] lst)
 -- inspect ('consInitsList === 'listInits)
 
 consInitsText, textInits :: Text -> [Text]

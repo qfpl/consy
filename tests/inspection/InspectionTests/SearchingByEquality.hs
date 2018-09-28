@@ -8,7 +8,7 @@
 {-# language TemplateHaskell #-}
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl -ddump-simpl-stats #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.SearchingByEquality where
 
 import Data.Bool (Bool(..), (&&), (||), otherwise)

@@ -10,7 +10,7 @@
 {-# language TemplateHaskell #-}
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl -ddump-simpl-stats #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.InfiniteLists where
 
 import Control.Applicative (ZipList(..))
@@ -141,12 +141,12 @@ listReplicate1 = Data.List.replicate 100 'a'
 inspect ('consReplicate1 === 'listReplicate1)
 
 consReplicateMap, listReplicateMap :: [Int]
-consReplicateMap = map (+10) (replicate 100 10)
+consReplicateMap = map (+10) (replicate 100 10 :: [Int])
 listReplicateMap = Data.List.map (+10) (Data.List.replicate 100 10)
 inspect ('consReplicateMap === 'listReplicateMap)
 
 consReplicateMap', listReplicateMap' :: Int -> [Int]
-consReplicateMap' n = map (+10) (replicate n 10)
+consReplicateMap' n = map (+10) (replicate n 10 :: [Int])
 listReplicateMap' n = Data.List.map (+10) (Data.List.replicate n 10)
 inspect ('consReplicateMap' === 'listReplicateMap')
 

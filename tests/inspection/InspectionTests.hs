@@ -1,26 +1,34 @@
--- {-# language BangPatterns #-}
--- {-# language NoImplicitPrelude #-}
--- {-# language TemplateHaskell #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl #-}
-module InspectionTests where
+module InspectionTests
+  ( module InspectionTests.AccumulatingMaps
+  , module InspectionTests.Basic
+  , module InspectionTests.ExtractingSublists
+  , module InspectionTests.Folds
+  , module InspectionTests.Indexing
+  , module InspectionTests.InfiniteLists
+  , module InspectionTests.Scans
+  , module InspectionTests.SearchingByEquality
+  , module InspectionTests.SearchingWithPredicate
+  , module InspectionTests.SpecialFolds
+  , module InspectionTests.SublistsWithPredicates
+  , module InspectionTests.Transformations
+  , module InspectionTests.TransformationsMap
+  , module InspectionTests.Unfolding
+  , module InspectionTests.Zipping
+  )
+where
 
-import  InspectionTests.Basic
--- import  InspectionTests.Transformations
--- import  InspectionTests.Folds
--- import  InspectionTests.SpecialFolds
--- import  InspectionTests.AccumulatingMaps
--- import  InspectionTests.InfiniteLists
--- import  InspectionTests.Unfolding
--- import  InspectionTests.ExtractingSublists
--- import  InspectionTests.SublistsWithPredicates
--- import  InspectionTests.SearchingByEquality
--- import  InspectionTests.SearchingWithPredicate
--- import  InspectionTests.Indexing
--- import  InspectionTests.Zipping
-
-import Consy
-import Data.Text (Text)
-
--- main :: IO ()
--- main = pure ()
-  -- print $ Consy.take 10 (Consy.repeat 'a' :: Text)
+import InspectionTests.AccumulatingMaps
+import InspectionTests.Basic
+import InspectionTests.ExtractingSublists
+import InspectionTests.Folds
+import InspectionTests.Indexing
+import InspectionTests.InfiniteLists
+import InspectionTests.Scans
+import InspectionTests.SearchingByEquality
+import InspectionTests.SearchingWithPredicate
+import InspectionTests.SpecialFolds
+import InspectionTests.SublistsWithPredicates
+import InspectionTests.Transformations
+import InspectionTests.TransformationsMap
+import InspectionTests.Unfolding
+import InspectionTests.Zipping

@@ -15,7 +15,7 @@
 {-# language TemplateHaskell #-}
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl -ddump-simpl-stats #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.SpecialFolds where
 
 import Control.Applicative (ZipList(..))
@@ -149,11 +149,11 @@ consAny, listAny :: (a -> Bool) -> [a] -> Bool
 consAny = any
 listAny p = go
   where
-  go s =
-    case s of
-      [] -> False
-      (x:xs) -> p x || go xs
-inspect ('consAny === 'listAny)
+    go s =
+      case s of
+        [] -> False
+        x:xs -> p x || go xs
+inspect ('consAny ==- 'listAny)
 
 consAnyText, textAny :: (Char -> Bool) -> Text -> Bool
 consAnyText = any
@@ -222,62 +222,40 @@ inspect ('consAllLBS === 'lbsAll)
 {- sum -}
 consSum, listSum :: Num a => [a] -> a
 consSum = sum
--- listSum = foldl (+) 0
-listSum = go
-  where
-  go s =
-    case s of
-      [] -> 0
-      (x:xs) -> x + go xs
+listSum xs = foldl (+) 0 xs
 inspect ('consSum === 'listSum)
 
--- -- FAILS
--- consSumVector, vectorSum :: Num a => Vector a -> a
--- consSumVector = sum
--- vectorSum = Data.Vector.sum
--- inspect ('consSumVector === 'vectorSum)
+consSumVector, vectorSum :: Num a => Vector a -> a
+consSumVector = sum
+vectorSum = Data.Vector.sum
+inspect ('consSumVector === 'vectorSum)
 
--- FAILS
--- consSumSeq, seqSum :: Num a => Data.Sequence.Seq a -> a
--- consSumSeq = sum
--- seqSum = Data.Foldable.sum
--- inspect ('consSumSeq === 'seqSum)
-
+consSumSeq, seqSum :: Num a => Data.Sequence.Seq a -> a
+consSumSeq = sum
+seqSum = Data.Foldable.sum
+inspect ('consSumSeq === 'seqSum)
 
 {- product -}
 consProduct, listProduct :: Num a => [a] -> a
 consProduct = product
--- listProduct = foldl (*) 1
-listProduct = go
-  where
-  go s =
-    case s of
-      [] -> 1
-      (x:xs) -> x * go xs
+listProduct xs = foldl (*) 1 xs
 inspect ('consProduct === 'listProduct)
 
--- FAILS
--- consProductVector, vectorProduct :: Num a => Vector a -> a
--- consProductVector = product
--- vectorProduct = Data.Vector.product
--- inspect ('consProductVector === 'vectorProduct)
+consProductVector, vectorProduct :: Num a => Vector a -> a
+consProductVector = product
+vectorProduct = Data.Vector.product
+inspect ('consProductVector === 'vectorProduct)
 
--- FAILS
--- consProductSeq, seqProduct :: Num a => Data.Sequence.Seq a -> a
--- consProductSeq = product
--- seqProduct = Data.Foldable.product
--- inspect ('consProductSeq === 'seqProduct)
-
+consProductSeq, seqProduct :: Num a => Data.Sequence.Seq a -> a
+consProductSeq = product
+seqProduct = Data.Foldable.product
+inspect ('consProductSeq === 'seqProduct)
 
 {- maximum -}
 consMaximum, listMaximum :: (Ord a) => [a] -> a
 consMaximum = maximum
-listMaximum = go
-  where
-  go s =
-    case s of
-      [] -> errorEmptyList "maximum"
-      otherwise -> foldl1 max s
+listMaximum [] = errorEmptyList "maximum"
+listMaximum xs = foldl1 max xs
 inspect ('consMaximum === 'listMaximum)
 
 consMaximumText, textMaximum :: Text -> Char
@@ -290,11 +268,10 @@ consMaximumLazyText = maximum
 lazyTextMaximum = Data.Text.Lazy.maximum
 inspect ('consMaximumLazyText === 'lazyTextMaximum)
 
--- FAILS
--- consMaximumVector, vectorMaximum :: (Ord a) => Vector a -> a
--- consMaximumVector = maximum
--- vectorMaximum = Data.Vector.maximum
--- inspect ('consMaximumVector === 'vectorMaximum)
+consMaximumVector, vectorMaximum :: (Ord a) => Vector a -> a
+consMaximumVector = maximum
+vectorMaximum = Data.Vector.maximum
+inspect ('consMaximumVector === 'vectorMaximum)
 
 consMaximumBS, bsMaximum :: Data.ByteString.ByteString -> Word8
 consMaximumBS = maximum
@@ -306,22 +283,17 @@ consMaximumLBS = maximum
 lbsMaximum = Data.ByteString.Lazy.maximum
 inspect ('consMaximumLBS === 'lbsMaximum)
 
--- FAILS
--- consMaximumSeq, seqMaximum :: (Ord a) => Data.Sequence.Seq a -> a
--- consMaximumSeq = maximum
--- seqMaximum = Data.Foldable.maximum
--- inspect ('consMaximumSeq === 'seqMaximum)
+consMaximumSeq, seqMaximum :: (Ord a) => Data.Sequence.Seq a -> a
+consMaximumSeq = maximum
+seqMaximum = Data.Foldable.maximum
+inspect ('consMaximumSeq === 'seqMaximum)
 
 
 {- minimum -}
 consMinimum, listMinimum :: (Ord a) => [a] -> a
 consMinimum = minimum
-listMinimum = go
-  where
-  go s =
-    case s of
-      [] -> errorEmptyList "minimum"
-      otherwise -> foldl1 min s
+listMinimum [] = errorEmptyList "minimum"
+listMinimum s = foldl1 min s
 inspect ('consMinimum === 'listMinimum)
 
 consMinimumText, textMinimum :: Text -> Char
@@ -334,11 +306,10 @@ consMinimumLazyText = minimum
 lazyTextMinimum = Data.Text.Lazy.minimum
 inspect ('consMinimumLazyText === 'lazyTextMinimum)
 
--- FAILS
--- consMinimumVector, vectorMinimum :: (Ord a) => Vector a -> a
--- consMinimumVector = minimum
--- vectorMinimum = Data.Vector.minimum
--- inspect ('consMinimumVector === 'vectorMinimum)
+consMinimumVector, vectorMinimum :: (Ord a) => Vector a -> a
+consMinimumVector = minimum
+vectorMinimum = Data.Vector.minimum
+inspect ('consMinimumVector === 'vectorMinimum)
 
 consMinimumBS, bsMinimum :: Data.ByteString.ByteString -> Word8
 consMinimumBS = minimum
@@ -350,8 +321,7 @@ consMinimumLBS = minimum
 lbsMinimum = Data.ByteString.Lazy.minimum
 inspect ('consMinimumLBS === 'lbsMinimum)
 
--- FAILS
--- consMinimumSeq, seqMinimum :: (Ord a) => Data.Sequence.Seq a -> a
--- consMinimumSeq = minimum
--- seqMinimum = Data.Foldable.minimum
--- inspect ('consMinimumSeq === 'seqMinimum)
+consMinimumSeq, seqMinimum :: (Ord a) => Data.Sequence.Seq a -> a
+consMinimumSeq = minimum
+seqMinimum = Data.Foldable.minimum
+inspect ('consMinimumSeq === 'seqMinimum)

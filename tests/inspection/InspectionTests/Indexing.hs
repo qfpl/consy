@@ -13,7 +13,7 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE MagicHash #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl -ddump-simpl-stats #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Indexing where
 
 import Data.Bool (Bool(..), otherwise)
@@ -44,26 +44,23 @@ import Consy
 
 
 {- (!!) -}
--- FAILS
 consListIndex, listIndex :: [a] -> Int -> a
 consListIndex = (!!)
--- listIndex ls n
---       | n < 0  =  errorWithoutStackTrace "Prelude.!!: negative index"
---       | otherwise = go ls n
---           where
---             go [] _ =  errorWithoutStackTrace "Prelude.!!: index too large"
---             go (x:_) 0 =  x
---             go (_:xs) n =  go xs (n-1)
-listIndex =  go
+listIndex ls !n
+  | n < 0 = errorWithoutStackTrace "Prelude.!!: negative index"
+  | otherwise =
+      Data.List.foldr
+        (\x r k ->
+           case k of
+             0 -> x
+             _ -> r (k-1))
+        tooLarge
+        ls
+        n
   where
-    go ls !n
-      | n < 0 = errorWithoutStackTrace "Prelude.!!: negative index"
-      | otherwise = foldr (\x r k -> case k of
-                                   0 -> x
-                                   _ -> r (k-1)) tooLarge ls n
-tooLarge :: Int -> a
-tooLarge _ = errorWithoutStackTrace "Prelude.!!: index too large"
--- inspect ('consListIndex === 'listIndex)
+    tooLarge :: Int -> a
+    tooLarge _ = errorWithoutStackTrace "Prelude.!!: index too large"
+inspect ('consListIndex === 'listIndex)
 
 
 {- elemIndex -}

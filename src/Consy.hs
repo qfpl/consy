@@ -2,32 +2,32 @@
 module Consy
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
+    -- * Basic functions
   , append
   , head
   , last
   , tail
   , init
-  -- , uncons
   , null
   , length
-  -- ,------
+    -- * Transformations
   , map
-  -- ,------
   , reverse
   , intersperse
   , intercalate
   , transpose
   , subsequences
-  -- ,------
-  , augment
-  , build
+  -- , permutations
+    -- * Reducing
   , foldl
   , foldl'
   , foldl1
   , foldl1'
   , foldr
   , foldr1
-  -- ,------
+  , augment
+  , build
+    -- ** Special folds
   , concat
   , concatMap
   , and
@@ -38,18 +38,26 @@ module Consy
   , product
   , maximum
   , minimum
-  -- , -----
+    -- * Building
+    -- ** Scans
+  , scanl
+  , scanl'
+  , scanl1
+  , scanr
+  , scanr1
+    -- ** Accumulating maps
   -- , mapAccumL
   -- , mapAccumR
-  -- , -----
+    -- ** Infinite structures
   , iterate
   , iterate'
   , repeat
   , replicate
   , cycle
-  -- , -----
+    -- ** Unfolding
   , unfoldr
-  -- , -----
+    -- * Sublists
+    -- ** Extracting substructures
   , take
   , drop
   , splitAt
@@ -63,26 +71,27 @@ module Consy
   , groupBy
   , inits
   , tails
-  -- , -----
+    -- ** Predicates
   , isPrefixOf
   , isSuffixOf
   , isInfixOf
   , isSubsequenceOf
-  -- , -----
+    -- * Searching
+    -- ** Searching by equality
   , elem
   , notElem
   , lookup
-  -- , -----
+    -- ** Searching with a predicate
   , find
   , filter
   , partition
-  -- , -----
+    -- * Indexing
   , (!!)
   , elemIndex
   , elemIndices
   , findIndex
   , findIndices
-  -- , -----
+    -- * Zipping and unzipping
   , zip
   , zip3
   , zip4
@@ -116,6 +125,7 @@ import Consy.SpecialFolds           -- done
 import Consy.InfiniteLists          -- done
 import Consy.Unfolding              -- done
 import Consy.ExtractingSublists     -- done
+import Consy.Scans
 import Consy.SublistsWithPredicates -- done
 import Consy.SearchingByEquality    -- done
 import Consy.SearchingWithPredicate -- done

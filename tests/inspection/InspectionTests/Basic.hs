@@ -13,7 +13,7 @@
 {-# language TemplateHaskell #-}
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl -ddump-simpl-stats #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Basic where
 
 import Control.Applicative (ZipList(..))
@@ -92,14 +92,15 @@ inspect ('consAppendSeq === 'seqAppend)
 
 
 {- head -}
--- !!FAILS
--- consListHead, listHead :: [a] -> a
--- consListHead = head
--- listHead [] = badHead
--- listHead(x:_) = x
--- badHead :: a
--- badHead = errorEmptyList "head"
--- inspect ('consListHead === 'listHead)
+consListHead, listHead :: [a] -> a
+consListHead = head
+listHead [] = errorEmptyList "head"
+listHead (x:_) = x
+{-
+This test fails for no good reason
+
+inspect ('consListHead === 'listHead)
+-}
 
 consHeadText, textHead :: Text -> Char
 consHeadText = head
@@ -128,11 +129,10 @@ inspect ('consHeadLBS === 'lbsHead)
 
 
 {- last -}
--- !!FAILS
--- consListLast, listLast :: [a] -> a
--- consListLast = last
--- listLast = \xs -> foldr (\_ x -> x) (errorEmptyList "tail")  xs
--- inspect ('consListLast === 'listLast)
+consLastList, listLast :: [a] -> a
+consLastList = last
+listLast xs = Data.List.foldl (\_ x -> x) (errorEmptyList "last") xs
+inspect ('consLastList === 'listLast)
 
 consLastText, consFoldrLast, textFoldrLast, textLast :: Text -> Char
 consLastText = last
@@ -164,12 +164,11 @@ inspect ('consLastLBS === 'lbsLast)
 
 
 {- tail -}
--- !!FAILS
--- consListTail, listTail :: [a] -> [a]
--- consListTail = tail
--- listTail (_:xs) = xs
--- listTail [] = errorEmptyList "tail"
--- inspect ('consListTail === 'listTail)
+consTailList, listTail :: [a] -> [a]
+consTailList = tail
+listTail (_:xs) = xs
+listTail [] = errorEmptyList "tail"
+inspect ('consTailList === 'listTail)
 
 consTailText, textTail :: Text -> Text
 consTailText = tail

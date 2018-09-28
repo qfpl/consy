@@ -20,9 +20,10 @@ library
   exposed-modules:     Consy
   other-modules:
                        Consy.Basic
-                       Consy.TransformationsMap
                        Consy.Transformations
+                       Consy.TransformationsMap
                        Consy.Folds
+                       Consy.Scans
                        Consy.SpecialFolds
                        Consy.AccumulatingMaps
                        Consy.InfiniteLists
@@ -44,22 +45,23 @@ library
   default-language:    Haskell2010
 
 library consy-inspection-tests
-  exposed-modules:
-                      InspectionTests
+  exposed-modules:    InspectionTests
                       InspectionTests.Basic
-                      -- InspectionTests.Transformations
-                      -- InspectionTests.Folds
-                      -- InspectionTests.SpecialFolds
-                      -- InspectionTests.AccumulatingMaps
-                      -- InspectionTests.InfiniteLists
-                      -- InspectionTests.Unfolding
-                      -- InspectionTests.ExtractingSublists
-                      -- InspectionTests.SublistsWithPredicates
-                      -- InspectionTests.SearchingByEquality
-                      -- InspectionTests.SearchingWithPredicate
-                      -- InspectionTests.Indexing
-                      -- InspectionTests.Zipping
-  -- InspectionTests
+                      InspectionTests.Transformations
+                      InspectionTests.TransformationsMap
+                      InspectionTests.Folds
+                      InspectionTests.SpecialFolds
+                      InspectionTests.Scans
+                      InspectionTests.AccumulatingMaps
+                      InspectionTests.InfiniteLists
+                      InspectionTests.Unfolding
+                      InspectionTests.ExtractingSublists
+                      InspectionTests.SublistsWithPredicates
+                      InspectionTests.SearchingByEquality
+                      InspectionTests.SearchingWithPredicate
+                      InspectionTests.Indexing
+                      InspectionTests.Zipping
+                      Orphans
   hs-source-dirs:      tests/inspection
   build-depends:       consy
                      , base >=4.9 && <5
@@ -69,31 +71,17 @@ library consy-inspection-tests
                      , text >=1.2 && <1.3
                      , containers >=0.5 && <0.6
                      , vector >=0.9 && <0.13
-  ghc-options:         -O
   default-language:    Haskell2010
 
 test-suite consy-tests
   type:                exitcode-stdio-1.0
   main-is:             Main.hs
-  other-modules:
-                       InspectionTests.Basic
-                       -- InspectionTests.Transformations
-                       -- InspectionTests.Folds
-                       -- InspectionTests.SpecialFolds
-                       -- InspectionTests.AccumulatingMaps
-                       -- InspectionTests.InfiniteLists
-                       -- InspectionTests.Unfolding
-                       -- InspectionTests.ExtractingSublists
-                       -- InspectionTests.SublistsWithPredicates
-                       -- InspectionTests.SearchingByEquality
-                       -- InspectionTests.SearchingWithPredicate
-                       -- InspectionTests.Indexing
-                       -- InspectionTests.Zipping
   hs-source-dirs:      tests
   build-depends:       consy
                      , consy-inspection-tests
                      , text
                      , base >=4.9 && <5
+                     , hedgehog >=0.6 && <0.7
                      , vector >=0.9 && <0.13
   ghc-options:         -O
   default-language:    Haskell2010

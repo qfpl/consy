@@ -8,9 +8,10 @@ import Data.Function (($), (.))
 import Data.Ord ((>))
 import Data.Text (Text, pack)
 import Data.Int (Int, Int64)
+import GHC.Base (IO)
 import GHC.Enum (succ)
 import GHC.Num (Integer, (+))
-import GHC.Base (IO)
+import GHC.Real (even)
 
 import qualified Data.ByteString.Char8
 import qualified Data.ByteString.Lazy
@@ -25,7 +26,62 @@ import InspectionTests
 main :: IO ()
 main =
   defaultMain
-    [ env (pure $ Data.Sequence.fromList [1..1000::Int]) $
+    [ env (pure $ Data.Sequence.fromList [1..10000::Int]) $
+      \input -> bgroup "seq scanl"
+      [ bench "cons scanl seq" $ nf (consScanlSeq (+) (0::Int)) input
+      , bench "seq scanl" $ nf (seqScanl (+) (0::Int)) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list scanr1"
+      [ bench "cons scanr1" $ nf (consScanr1List (+)) input
+      , bench "list scanr1" $ nf (listScanr1 (+)) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list scanr"
+      [ bench "cons scanr" $ nf (consScanrList (+) (0::Int)) input
+      , bench "list scanr" $ nf (listScanr (+) (0::Int)) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list scanl'"
+      [ bench "cons scanl'" $ nf (consScanl'List (+) (0::Int)) input
+      , bench "list scanl'" $ nf (listScanl' (+) (0::Int)) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list scanl"
+      [ bench "cons scanl" $ nf (consScanlList (+) (0::Int)) input
+      , bench "list scanl" $ nf (listScanl (+) (0::Int)) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list splitAt"
+      [ bench "cons splitAt" $ nf (consSplitAtList 5000) input
+      , bench "list splitAt" $ nf (listSplitAt 5000) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list partition"
+      [ bench "cons partition" $ nf (consPartitionList even) input
+      , bench "list partition" $ nf (listPartition even) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list isPrefixOf"
+      [ bench "cons isPrefixOf" $ nf (consIsPrefixOfList [1, 2]) input
+      , bench "list isPrefixOf" $ nf (listIsPrefixOf [1, 2]) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list isSubsequenceOf"
+      [ bench "cons isSubsequenceOf" $ nf (consIsSubsequenceOfList [2, 500]) input
+      , bench "list isSubsequenceOf" $ nf (listIsSubsequenceOf [2, 500]) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list isSuffixOf"
+      [ bench "cons isSuffixOf" $ nf (consIsSuffixOfList [9999, 10000]) input
+      , bench "list isSuffixOf" $ nf (listIsSuffixOf [9999, 10000]) input
+      ]
+    , env (pure [1..10000::Int]) $
+      \input -> bgroup "list isInfixOf"
+      [ bench "cons isInfixOf" $ nf (consIsInfixOfList [500, 501]) input
+      , bench "list isInfixOf" $ nf (listIsInfixOf [500, 501]) input
+      ]
+    , env (pure $ Data.Sequence.fromList [1..1000::Int]) $
       \input -> bgroup "sequence filter"
       [ bench "cons filter seq" $ nf (consFilterSeq (>500)) input
       , bench "seq filter" $ nf (seqFilter (>500)) input
@@ -77,11 +133,6 @@ main =
       \input -> bgroup "seq map"
       [ bench "cons map seq" $ nf (consMapSeq (+10)) input
       , bench "seq map" $ nf (seqMap (+10)) input
-      ]
-    , env (pure . Data.Sequence.fromList $ Data.List.replicate 1000 (10::Int)) $
-      \input -> bgroup "seq take"
-      [ bench "cons take seq" $ nf (consTakeSeq 500) input
-      , bench "seq take" $ nf (seqTake 500) input
       ]
     , env (pure . Data.Sequence.fromList $ Data.List.replicate 1000 (10::Int)) $
       \input -> bgroup "seq drop"

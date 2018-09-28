@@ -8,7 +8,7 @@
 {-# language TemplateHaskell #-}
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl -ddump-simpl-stats #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.SearchingWithPredicate where
 
 import Control.Applicative (ZipList(..))
@@ -113,43 +113,46 @@ inspect ('consFilterSeq === 'seqFilter)
 
 
 {- partititon -}
--- -- FAILS
--- consPartition, listPartition :: (a -> Bool) -> [a] -> ([a], [a])
--- consPartition = partition
--- listPartition p = \s -> (Data.List.filter p s, Data.List.filter (not . p) s)
--- -- listPartition p = foldr (select p) ([],[])
--- --   where
--- --     select :: (a -> Bool) -> a -> ([a], [a]) -> ([a], [a])
--- --     select p x ~(ts,fs) | p x       = (x:ts,fs)
--- --                         | otherwise = (ts, x:fs)
--- inspect ('consPartition === 'listPartition)
---
--- consPartitionText, textPartition :: (Char -> Bool) -> Text -> (Text, Text)
--- consPartitionText = partition
--- textPartition = Data.Text.partition
--- inspect ('consPartitionText === 'textPartition)
---
--- consPartitionLazyText, lazyTextPartition :: (Char -> Bool) -> Data.Text.Lazy.Text -> (Data.Text.Lazy.Text, Data.Text.Lazy.Text)
--- consPartitionLazyText = partition
--- lazyTextPartition = Data.Text.Lazy.partition
--- inspect ('consPartitionLazyText === 'lazyTextPartition)
---
--- consPartitionVector, vectorPartition :: (a -> Bool) -> Vector a -> (Vector a, Vector a)
--- consPartitionVector = partition
--- vectorPartition = Data.Vector.partition
--- inspect ('consPartitionVector === 'vectorPartition)
---
--- consPartitionBS, bsPartition :: (Word8 -> Bool) -> Data.ByteString.ByteString -> (Data.ByteString.ByteString, Data.ByteString.ByteString)
--- consPartitionBS = partition
--- bsPartition = Data.ByteString.partition
--- inspect ('consPartitionBS === 'bsPartition)
---
--- consPartitionLBS, lbsPartition :: (Word8 -> Bool) -> Data.ByteString.Lazy.ByteString -> (Data.ByteString.Lazy.ByteString, Data.ByteString.Lazy.ByteString)
--- consPartitionLBS = partition
--- lbsPartition = Data.ByteString.Lazy.partition
--- inspect ('consPartitionLBS === 'lbsPartition)
---
--- consPartitionSeq, seqPartition :: (a -> Bool) -> Seq a -> (Seq a, Seq a)
--- consPartitionSeq = partition
--- seqPartition = Data.Sequence.partition
--- inspect ('consPartitionSeq === 'seqPartition)
+consPartitionList, listPartition :: (a -> Bool) -> [a] -> ([a], [a])
+consPartitionList = partition
+listPartition p = Data.List.foldr (select p) ([],[])
+  where
+    select p x ~(ts,fs)
+      | p x       = (x : ts,fs)
+      | otherwise = (ts, x : fs)
+{-
+The core for these two functions differ slightly, because the List-based version seems to
+unpack the tuples, but the Cons-based version doesn't. This doesn't impact performance.
+
+inspect ('consPartitionList === 'listPartition)
+-}
+
+consPartitionText, textPartition :: (Char -> Bool) -> Text -> (Text, Text)
+consPartitionText = partition
+textPartition = Data.Text.partition
+inspect ('consPartitionText === 'textPartition)
+
+consPartitionLazyText, lazyTextPartition :: (Char -> Bool) -> Data.Text.Lazy.Text -> (Data.Text.Lazy.Text, Data.Text.Lazy.Text)
+consPartitionLazyText = partition
+lazyTextPartition = Data.Text.Lazy.partition
+inspect ('consPartitionLazyText === 'lazyTextPartition)
+
+consPartitionVector, vectorPartition :: (a -> Bool) -> Vector a -> (Vector a, Vector a)
+consPartitionVector = partition
+vectorPartition = Data.Vector.partition
+inspect ('consPartitionVector === 'vectorPartition)
+
+consPartitionBS, bsPartition :: (Word8 -> Bool) -> Data.ByteString.ByteString -> (Data.ByteString.ByteString, Data.ByteString.ByteString)
+consPartitionBS = partition
+bsPartition = Data.ByteString.partition
+inspect ('consPartitionBS === 'bsPartition)
+
+consPartitionLBS, lbsPartition :: (Word8 -> Bool) -> Data.ByteString.Lazy.ByteString -> (Data.ByteString.Lazy.ByteString, Data.ByteString.Lazy.ByteString)
+consPartitionLBS = partition
+lbsPartition = Data.ByteString.Lazy.partition
+inspect ('consPartitionLBS === 'lbsPartition)
+
+consPartitionSeq, seqPartition :: (a -> Bool) -> Seq a -> (Seq a, Seq a)
+consPartitionSeq = partition
+seqPartition = Data.Sequence.partition
+inspect ('consPartitionSeq === 'seqPartition)

@@ -6,7 +6,7 @@
 {-# language TemplateHaskell #-}
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl -ddump-simpl-stats #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Unfolding where
 
 import Control.Applicative (ZipList(..))
@@ -46,14 +46,16 @@ import qualified Data.Word
 import Consy
 
 {- unfoldr -}
--- FAILS
 consListUnfoldr, listUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
 consListUnfoldr = unfoldr
-listUnfoldr f b0 = build (\c n ->
-  let go b = case f b of
-               Just (a, new_b) -> a `c` go new_b
-               Nothing         -> n
-  in go b0)
+listUnfoldr f b0 =
+  build
+  (\c n ->
+      let
+        go b = case f b of
+          Just (a, new_b) -> a `c` go new_b
+          Nothing         -> n
+      in go b0)
 inspect ('consListUnfoldr === 'listUnfoldr)
 
 consUnfoldrText, textUnfoldr :: (a -> Maybe (Char, a)) -> a -> Text

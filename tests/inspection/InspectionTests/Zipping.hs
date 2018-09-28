@@ -23,7 +23,7 @@
 {-# language TemplateHaskell #-}
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl -ddump-simpl-stats #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Zipping where
 
 import Data.Char (Char)
@@ -269,14 +269,13 @@ inspect ('consZipWith5Vector === 'vectorZipWith5)
 
 
 {- zipWith6 -}
--- FAILS
 consZipWith6, listZipWith6 :: (a -> b -> c -> d -> e -> f -> g) -> [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [g]
 consZipWith6 ff = zipWith6 ff
 listZipWith6 ff = go
   where
     go (a:as) (b:bs) (c:cs) (d:ds) (e:es) (f:fs)= ff a b c d e f : go as bs cs ds es fs
     go _ _ _ _ _ _ = []
--- inspect ('consZipWith6 === 'listZipWith6)
+inspect ('consZipWith6 === 'listZipWith6)
 
 consZipWith6Vector, vectorZipWith6 :: (a -> b -> c -> d -> e -> f -> g) -> Vector a -> Vector b -> Vector c -> Vector d -> Vector e -> Vector f -> Vector g
 consZipWith6Vector = zipWith6
@@ -285,14 +284,13 @@ inspect ('consZipWith6Vector === 'vectorZipWith6)
 
 
 {- zipWith7 -}
--- FAILS
 consZipWith7, listZipWith7 :: (a -> b -> c -> d -> e -> f -> g -> h) -> [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [g] -> [h]
-consZipWith7 ff = zipWith7 ff
-listZipWith7 ff = go
+consZipWith7 f = zipWith7 f
+listZipWith7 z = go
   where
-    go (a:as) (b:bs) (c:cs) (d:ds) (e:es) (f:fs) (g:gs)= ff a b c d e f g : go as bs cs ds es fs gs
+    go (a:as) (b:bs) (c:cs) (d:ds) (e:es) (f:fs) (g:gs) = z a b c d e f g : go as bs cs ds es fs gs
     go _ _ _ _ _ _ _ = []
--- inspect ('consZipWith7 === 'listZipWith7)
+inspect ('consZipWith7 === 'listZipWith7)
 
 
 {- unzip -}

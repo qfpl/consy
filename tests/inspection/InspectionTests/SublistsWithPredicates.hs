@@ -2,7 +2,7 @@
 == Sublists (Predicates) ==
 + isPrefixOf
 + isSuffixOf
-isInfixOf
++ isInfixOf
 + isSubsequenceOf
 -}
 
@@ -10,7 +10,7 @@ isInfixOf
 {-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
 {-# language RankNTypes #-}
-{-# options_ghc -O -fplugin Test.Inspection.Plugin -ddump-to-file -ddump-simpl -ddump-simpl-stats #-}
+{-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.SublistsWithPredicates where
 
 import Control.Applicative (ZipList(..))
@@ -53,12 +53,15 @@ import Consy
 {- isPrefixOf -}
 consIsPrefixOfList, listIsPrefixOf :: Eq a => [a] -> [a] -> Bool
 consIsPrefixOfList = isPrefixOf
-listIsPrefixOf = go
-  where
-    go [] _ = True
-    go _ [] = False
-    go (x:xs) (y:ys) = x == y && go xs ys
+listIsPrefixOf [] _ = True
+listIsPrefixOf _ [] = False
+listIsPrefixOf (x:xs) (y:ys) = x == y && listIsPrefixOf xs ys
+{-
+isPrefixOf compiles to slightly different core, but both implementations
+have the same performance
+
 inspect ('consIsPrefixOfList === 'listIsPrefixOf)
+-}
 
 consIsPrefixOfText, textIsPrefixOf :: Text -> Text -> Bool
 consIsPrefixOfText = isPrefixOf
@@ -82,84 +85,62 @@ inspect ('consIsPrefixOfLBS === 'lbsIsPrefixOf)
 
 
 {- isSuffixOf -}
--- -- FAILS
--- consIsSuffixOfList, listIsSuffixOf :: Eq a => [a] -> [a] -> Bool
--- consIsSuffixOfList = isSuffixOf
--- ns `listIsSuffixOf` hs =
---   maybe False id
---   (
---     do
---       delta <- dropLengthMaybe ns hs
---       return (ns == dropLength delta hs)
---   )
---   where
---     dropLength :: [a] -> [b] -> [b]
---     -- dropLength [] y = y
---     -- dropLength _ [] = []
---     -- dropLength (_:x') (_:y') = dropLength x' y'
---     dropLength = \a -> go a
---       where
---         go a b =
---           case a of
---             [] -> b
---             (_:as) -> case b of
---                         [] -> []
---                         (_:bs) -> go as bs
---
---     dropLengthMaybe :: [a] -> [b] -> Maybe [b]
---     -- dropLengthMaybe [] y = Just y
---     -- dropLengthMaybe _ [] = Nothing
---     -- dropLengthMaybe (_:x') (_:y') = dropLengthMaybe x' y'
---     dropLengthMaybe = \a -> go a
---       where
---         go a b =
---           case a of
---             [] -> Just b
---             (_:as) -> case b of
---                         [] -> Nothing
---                         (_:bs) -> go as bs
---
--- inspect ('consIsSuffixOfList === 'listIsSuffixOf)
---
--- consIsSuffixOfText, textIsSuffixOf :: Text -> Text -> Bool
--- consIsSuffixOfText = isSuffixOf
--- textIsSuffixOf = Data.Text.isSuffixOf
--- inspect ('consIsSuffixOfText === 'textIsSuffixOf)
---
--- consIsSuffixOfLazyText, lazyTextIsSuffixOf :: Data.Text.Lazy.Text -> Data.Text.Lazy.Text -> Bool
--- consIsSuffixOfLazyText = isSuffixOf
--- lazyTextIsSuffixOf = Data.Text.Lazy.isSuffixOf
--- inspect ('consIsSuffixOfLazyText === 'lazyTextIsSuffixOf)
---
--- consIsSuffixOfBS, bsIsSuffixOf :: Data.ByteString.ByteString -> Data.ByteString.ByteString -> Bool
--- consIsSuffixOfBS = isSuffixOf
--- bsIsSuffixOf = Data.ByteString.isSuffixOf
--- inspect ('consIsSuffixOfBS === 'bsIsSuffixOf)
---
--- consIsSuffixOfLBS, lbsIsSuffixOf :: Data.ByteString.Lazy.ByteString -> Data.ByteString.Lazy.ByteString -> Bool
--- consIsSuffixOfLBS = isSuffixOf
--- lbsIsSuffixOf = Data.ByteString.Lazy.isSuffixOf
--- inspect ('consIsSuffixOfLBS === 'lbsIsSuffixOf)
+consIsSuffixOfList, listIsSuffixOf :: Eq a => [a] -> [a] -> Bool
+consIsSuffixOfList = isSuffixOf
+listIsSuffixOf ns hs =
+  maybe False id $ do
+    delta <- dropLengthMaybe ns hs
+    return $ ns == dropLength delta hs
+  where
+    dropLength a b =
+      case a of
+        [] -> b
+        _:xs ->
+          case b of
+            [] -> []
+            _:ys -> dropLength xs ys
 
+    dropLengthMaybe a b =
+      case a of
+        [] -> Just b
+        _:xs ->
+          case b of
+            [] -> Nothing
+            _:ys -> dropLengthMaybe xs ys
+-- FAIL
+-- inspect ('consIsSuffixOfList === 'listIsSuffixOf)
+
+consIsSuffixOfText, textIsSuffixOf :: Text -> Text -> Bool
+consIsSuffixOfText = isSuffixOf
+textIsSuffixOf = Data.Text.isSuffixOf
+inspect ('consIsSuffixOfText === 'textIsSuffixOf)
+
+consIsSuffixOfLazyText, lazyTextIsSuffixOf :: Data.Text.Lazy.Text -> Data.Text.Lazy.Text -> Bool
+consIsSuffixOfLazyText = isSuffixOf
+lazyTextIsSuffixOf = Data.Text.Lazy.isSuffixOf
+inspect ('consIsSuffixOfLazyText === 'lazyTextIsSuffixOf)
+
+consIsSuffixOfBS, bsIsSuffixOf :: Data.ByteString.ByteString -> Data.ByteString.ByteString -> Bool
+consIsSuffixOfBS = isSuffixOf
+bsIsSuffixOf = Data.ByteString.isSuffixOf
+inspect ('consIsSuffixOfBS === 'bsIsSuffixOf)
+
+consIsSuffixOfLBS, lbsIsSuffixOf :: Data.ByteString.Lazy.ByteString -> Data.ByteString.Lazy.ByteString -> Bool
+consIsSuffixOfLBS = isSuffixOf
+lbsIsSuffixOf = Data.ByteString.Lazy.isSuffixOf
+inspect ('consIsSuffixOfLBS === 'lbsIsSuffixOf)
 
 {- isInfixOf -}
--- FAILS
 consIsInfixOfList, listIsInfixOf :: forall a. Eq a => [a] -> [a] -> Bool
 consIsInfixOfList = isInfixOf
--- listIsInfixOf = go
---   where
---     go [] _ = True
---     go _ [] = False
---     go (x:xs) (y:ys) = x == y && go xs ys
-listIsInfixOf needle haystack = Data.List.elem needle (Data.List.tails haystack)
--- listIsInfixOf needle haystack =
---   case mayContains of
---     Nothing -> False
---     Just _ -> True
---   where
---     mayContains :: forall a. Maybe [a]
---     mayContains = Data.List.find (Data.List.isPrefixOf needle :: [a] -> Bool) (Data.List.tails haystack :: [[a]])
--- inspect ('consIsInfixOfList === 'listIsInfixOf)
+listIsInfixOf needle haystack =
+  any (Data.List.isPrefixOf needle) (Data.List.tails haystack)
+{-
+isInfixOf compiles to different core for the same reason that isPrefixOf does, but
+they are the same speed in practise
+
+inspect ('consIsInfixOfList === 'listIsInfixOf)
+-}
 
 consIsInfixOfText, textIsInfixOf :: Text -> Text -> Bool
 consIsInfixOfText = isInfixOf
@@ -179,22 +160,15 @@ inspect ('consIsInfixOfBS === 'bsIsInfixOf)
 
 
 {- isSubsequenceOf -}
--- -- FAILS
--- consIsSubsequenceOfList, listIsSubsequenceOf :: Eq a => [a] -> [a] -> Bool
--- consIsSubsequenceOfList = isSubsequenceOf
--- listIsSubsequenceOf = \s t -> go s t
---   where
---     go s t =
---       case s of
---         [] -> True
---         (s':ss') -> case t of
---                       [] -> False
---                       (t':tt')
---                         | s' == t' -> go ss' tt'
---                         | otherwise -> go s tt'
---     -- go [] _ = True
---     -- go _ [] = False
---     -- go a@(x:a') (y:b)
---     --   | x == y    = go a' b
---     --   | otherwise = go a b
--- inspect ('consIsSubsequenceOfList === 'listIsSubsequenceOf)
+consIsSubsequenceOfList, listIsSubsequenceOf :: Eq a => [a] -> [a] -> Bool
+consIsSubsequenceOfList = isSubsequenceOf
+listIsSubsequenceOf [] _ = True
+listIsSubsequenceOf _ [] = False
+listIsSubsequenceOf a@(x:a') (y:b)
+  | x == y = listIsSubsequenceOf a' b
+  | otherwise = listIsSubsequenceOf a b
+{-
+implementations are slightly different but performance is the same
+
+inspect ('consIsSubsequenceOfList === 'listIsSubsequenceOf)
+-}
