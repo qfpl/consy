@@ -122,11 +122,6 @@ listMapTake f !n s
 
 inspect ('consMapTakeList === 'listMapTake)
 
-
-instance AsEmpty (ZipList a) where
-  _Empty = nearly (ZipList []) (Data.List.null . getZipList)
-  {-# inline _Empty #-}
-
 consTakeZipList, zipListTake :: Int -> ZipList a -> ZipList a
 consTakeZipList n = take n
 zipListTake n = ZipList . listTake n . getZipList
