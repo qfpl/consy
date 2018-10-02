@@ -10,40 +10,86 @@ mapAccumR
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.AccumulatingMaps where
 
-import Control.Applicative (ZipList(..))
-import Control.Lens.Prism (nearly)
-import Data.Bool ((&&), (||), Bool(..), otherwise)
-import Data.Char (Char)
-import Data.Coerce (coerce)
-import Data.Eq (Eq(..), (==))
-import Data.Function (($), (.))
-import Data.Int (Int, Int64)
-import Data.Maybe (Maybe(..))
-import Data.Ord ((<), (>))
-import Data.Sequence (Seq)
-import Data.Text (Text, pack)
-import Data.Vector (Vector)
-import Data.Word (Word8)
-import GHC.Base (IO, pure)
-import GHC.Enum (succ)
-import GHC.List (errorEmptyList)
-import GHC.Num (Num, Integer, (+), (-))
-import GHC.Real (fromIntegral)
-import Test.Inspection
+import Test.Inspection ((===), inspect)
 
-import qualified Data.ByteString
-import qualified Data.ByteString.Char8
-import qualified Data.ByteString.Lazy
-import qualified Data.ByteString.Lazy.Char8
-import qualified Data.Foldable
-import qualified Data.Functor
+import Data.Char (Char)
+
 import qualified Data.List
-import qualified Data.Sequence
 import qualified Data.Text
 import qualified Data.Text.Lazy
-import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
-import qualified Data.Word
+
 import Consy
 
-{- mapAccumL -}
+consMapAccumLList, mapAccumLList :: (a -> b -> (a, c)) -> a -> [b] -> (a, [c])
+consMapAccumLList = mapAccumL
+mapAccumLList = Data.List.mapAccumL
+
+inspect ('consMapAccumLList === 'mapAccumLList)
+
+consMapAccumLText, mapAccumLText
+  :: (a -> Char -> (a, Char))
+  -> a
+  -> Data.Text.Text
+  -> (a, Data.Text.Text)
+consMapAccumLText = mapAccumL
+mapAccumLText = Data.Text.mapAccumL
+
+inspect ('consMapAccumLText === 'mapAccumLText)
+
+consMapAccumLLazyText, mapAccumLLazyText
+  :: (a -> Char -> (a, Char))
+  -> a
+  -> Data.Text.Lazy.Text
+  -> (a, Data.Text.Lazy.Text)
+consMapAccumLLazyText = mapAccumL
+mapAccumLLazyText = Data.Text.Lazy.mapAccumL
+
+inspect ('consMapAccumLLazyText === 'mapAccumLLazyText)
+
+consMapAccumLVector, mapAccumLVector
+  :: (a -> b -> (a, c))
+  -> a
+  -> Data.Vector.Vector b
+  -> (a, Data.Vector.Vector c)
+consMapAccumLVector = mapAccumL
+mapAccumLVector = Data.List.mapAccumL
+
+inspect ('consMapAccumLVector === 'mapAccumLVector)
+
+
+consMapAccumRList, mapAccumRList :: (a -> b -> (a, c)) -> a -> [b] -> (a, [c])
+consMapAccumRList = mapAccumR
+mapAccumRList = Data.List.mapAccumR
+
+inspect ('consMapAccumRList === 'mapAccumRList)
+
+consMapAccumRText, mapAccumRText
+  :: (a -> Char -> (a, Char))
+  -> a
+  -> Data.Text.Text
+  -> (a, Data.Text.Text)
+consMapAccumRText = mapAccumR
+mapAccumRText = Data.Text.mapAccumR
+
+inspect ('consMapAccumRText === 'mapAccumRText)
+
+consMapAccumRLazyText, mapAccumRLazyText
+  :: (a -> Char -> (a, Char))
+  -> a
+  -> Data.Text.Lazy.Text
+  -> (a, Data.Text.Lazy.Text)
+consMapAccumRLazyText = mapAccumR
+mapAccumRLazyText = Data.Text.Lazy.mapAccumR
+
+inspect ('consMapAccumRLazyText === 'mapAccumRLazyText)
+
+consMapAccumRVector, mapAccumRVector
+  :: (a -> b -> (a, c))
+  -> a
+  -> Data.Vector.Vector b
+  -> (a, Data.Vector.Vector c)
+consMapAccumRVector = mapAccumR
+mapAccumRVector = Data.List.mapAccumR
+
+inspect ('consMapAccumRVector === 'mapAccumRVector)

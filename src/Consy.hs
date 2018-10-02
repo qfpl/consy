@@ -12,6 +12,7 @@ module Consy
   , length
     -- * Transformations
   , map
+  , traverse
   , reverse
   , intersperse
   , intercalate
@@ -25,6 +26,7 @@ module Consy
   , foldl1'
   , foldr
   , foldr1
+  , foldMap
   , augment
   , build
     -- ** Special folds
@@ -46,8 +48,8 @@ module Consy
   , scanr
   , scanr1
     -- ** Accumulating maps
-  -- , mapAccumL
-  -- , mapAccumR
+  , mapAccumL
+  , mapAccumR
     -- ** Infinite structures
   , iterate
   , iterate'
@@ -121,7 +123,7 @@ import Consy.TransformationsMap     -- done, contains only `map` due to recursiv
 import Consy.Transformations
 import Consy.Folds
 import Consy.SpecialFolds           -- done
--- import Consy.AccumulatingMaps      -- missing all
+import Consy.AccumulatingMaps       -- done
 import Consy.InfiniteLists          -- done
 import Consy.Unfolding              -- done
 import Consy.ExtractingSublists     -- done
@@ -129,5 +131,6 @@ import Consy.Scans
 import Consy.SublistsWithPredicates -- done
 import Consy.SearchingByEquality    -- done
 import Consy.SearchingWithPredicate -- done
+import Consy.Traversable
 import Consy.Indexing               -- done
 import Consy.Zipping                -- done

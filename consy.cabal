@@ -22,6 +22,7 @@ library
                        Consy.Basic
                        Consy.Transformations
                        Consy.TransformationsMap
+                       Consy.Traversable
                        Consy.Folds
                        Consy.Scans
                        Consy.SpecialFolds
