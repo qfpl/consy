@@ -184,3 +184,18 @@ listSubsequences xs =  [] : nonEmptySubsequences xs
     nonEmptySubsequences (x:xs) = [x] : foldr f [] (nonEmptySubsequences xs)
       where f ys r = ys : (x : ys) : r
 inspect ('consListSubsequences === 'listSubsequences)
+
+consListPermutations, listPermutations :: [a] -> [[a]]
+consListPermutations = permutations
+listPermutations xs0 = xs0 : perms xs0 []
+  where
+    perms [] _  = []
+    perms (t:ts) is = foldr interleave (perms ts (t:is)) (listPermutations is)
+      where
+        interleave xs r = let (_,zs) = interleave' id xs r in zs
+        interleave' _ [] r = (ts, r)
+        interleave' f (y:ys) r =
+          let
+            (us,zs) = interleave' (f . (y:)) ys r
+          in  (y:us, f (t:y:us) : zs)
+inspect ('consListPermutations === 'listPermutations)

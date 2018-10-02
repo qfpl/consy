@@ -20,13 +20,14 @@ module Consy.Transformations
   , intercalate
   , transpose
   , subsequences
+  , permutations
   )
 where
 
 import Control.Lens
 import Control.Lens.Cons
 import Control.Lens.Empty
-import Data.Function ((.))
+import Data.Function ((.), ($))
 import Data.Maybe (Maybe(..))
 import Data.Sequence (Seq)
 import Data.Text (Text)
@@ -243,3 +244,28 @@ nonEmptySubsequences = go
             where f ys r = ys : (x `cons` ys) : r
 
 -- Note: not in Text, Lazy Text, nor in BS, LBS
+
+{-# inline permutations #-}
+permutations :: forall s a. (AsEmpty s, Cons s s a a) => s -> [s]
+permutations = go
+  where
+    go xs0 = xs0 : perms xs0 (Empty :: s)
+      where
+        perms = \x is ->
+          case uncons x of
+            Empty -> []
+            Just (t, ts) ->
+              foldr interleave (perms ts (t `cons` is)) (go is)
+              where
+                interleave :: s -> [s] -> [s]
+                interleave xs r = let (_,zs) = interleave' id xs r in zs
+
+                interleave' :: forall b. (s -> b) -> s -> [b] -> (s, [b])
+                interleave' f z r =
+                  case uncons z of
+                    Nothing -> (ts, r)
+                    Just (y, ys) ->
+                      let
+                        (us,zs) = interleave' (f . (y `cons`)) ys r
+                      in
+                        (y `cons` us, f (t `cons` y `cons` us) : zs)

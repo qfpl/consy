@@ -18,7 +18,7 @@ module Consy
   , intercalate
   , transpose
   , subsequences
-  -- , permutations
+  , permutations
     -- * Reducing
   , foldl
   , foldl'

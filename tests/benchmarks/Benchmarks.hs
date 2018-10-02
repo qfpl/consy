@@ -26,7 +26,12 @@ import InspectionTests
 main :: IO ()
 main =
   defaultMain
-    [ env (pure $ Data.Sequence.fromList [1..10000::Int]) $
+    [ env (pure [1..500::Int]) $
+      \input -> bgroup "list inits"
+      [ bench "cons inits" $ nf consInitsList input
+      , bench "list inits" $ nf listInits input
+      ]
+    , env (pure $ Data.Sequence.fromList [1..10000::Int]) $
       \input -> bgroup "seq scanl"
       [ bench "cons scanl seq" $ nf (consScanlSeq (+) (0::Int)) input
       , bench "seq scanl" $ nf (seqScanl (+) (0::Int)) input

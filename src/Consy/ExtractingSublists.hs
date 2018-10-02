@@ -576,53 +576,44 @@ groupBy = \p -> go p
 #-}
 
 
-{-# noinline inits #-}
+{-# inline [2] inits #-}
 -- inits :: [a] -> [[a]]
 inits :: (AsEmpty s, AsEmpty t, Cons s s a a, Cons t t s s) => s -> t
--- inits = map toListSB . scanl' snocSB emptySB
-inits lst = build (\c n ->
-  let initsGo hs xs = hs `c` case uncons xs of
-                            Empty -> n
-                            Just (x',xs') -> initsGo (hs `append` (x' `cons` Empty)) xs'
-  in initsGo Empty lst)
-{-
-  myinits :: [a] -> [[a]]
-  myinits lst = build ( \c n ->
-    let initsGo hs xs = hs `c` case xs of
-                              [] -> n
-                              (x':xs') -> initsGo (hs ++ [x']) xs'
-    in initsGo [] lst )
-
--}
+inits = \lst -> build (initsGo Empty lst)
+  where
+    initsGo hs xs c n =
+      hs `c` case uncons xs of
+        Empty -> n
+        Just (x',xs') -> initsGo (hs `append` (x' `cons` Empty)) xs' c n
 
 {-# rules
-"cons inits text"
+"cons inits text" [~2]
     inits @Text = Data.Text.inits
-"cons inits text eta"
+"cons inits text eta" [~2]
     forall xs.
     inits @Text xs = Data.Text.inits xs
 
-"cons inits ltext"
+"cons inits ltext" [~2]
     inits @Data.Text.Lazy.Text = Data.Text.Lazy.inits
-"cons inits ltext eta"
+"cons inits ltext eta" [~2]
     forall xs.
     inits @Data.Text.Lazy.Text xs = Data.Text.Lazy.inits xs
 
-"cons inits bs"
+"cons inits bs" [~2]
     inits @BS.ByteString = BS.inits
-"cons inits bs eta"
+"cons inits bs eta" [~2]
     forall xs.
     inits @BS.ByteString xs = BS.inits xs
 
-"cons inits bslazy"
+"cons inits bslazy" [~2]
     inits @LBS.ByteString = LBS.inits
-"cons inits bslazy eta"
+"cons inits bslazy eta" [~2]
     forall xs.
     inits @LBS.ByteString xs = LBS.inits xs
 
-"cons inits seq"
+"cons inits seq" [~2]
     inits @(Seq _) = Data.Sequence.inits
-"cons inits seq eta"
+"cons inits seq eta" [~2]
     forall xs.
     inits @(Seq _) xs = Data.Sequence.inits xs
 #-}

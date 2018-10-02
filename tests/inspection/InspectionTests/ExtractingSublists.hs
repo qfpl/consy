@@ -543,15 +543,20 @@ inspect ('consGroupLBS === 'lbsGroup)
 
 
 {- inits -}
--- FAIL
 consInitsList, listInits :: [a] -> [[a]]
 consInitsList = inits
-listInits lst =  build (\c n ->
-  let initsGo hs xs = hs `c` case xs of
-                            [] -> n
-                            (x' : xs') -> initsGo (hs ++ [x']) xs'
-  in initsGo [] lst)
--- inspect ('consInitsList === 'listInits)
+listInits lst = build (initsGo [] lst)
+  where
+    initsGo hs xs c n =
+      hs `c` case xs of
+        [] -> n
+        (x' : xs') -> initsGo (hs ++ [x']) xs' c n
+
+{-
+This test fails, but the code is morally the same and performs similarly
+
+inspect ('consInitsList === 'listInits)
+-}
 
 consInitsText, textInits :: Text -> [Text]
 consInitsText = inits
