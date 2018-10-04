@@ -1,21 +1,7 @@
-{-
-== Indexing Sublists ==
-+ (!!)
-+ elemIndex
-+ elemIndices
-+ findIndex
-+ findIndices
--}
-
 {-# language BangPatterns #-}
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
 {-# LANGUAGE MagicHash #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
--- {-# LANGUAGE CPP #-}
--- {-# LANGUAGE Trustworthy #-}
 module Consy.Indexing
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -54,8 +40,6 @@ import qualified Data.Vector
 import Consy.Folds (build, foldr)
 import Consy.TransformationsMap (map)
 
-
-{- ___ Indexing Sublists ____________________________________________________ -}
 
 {-# inline [~1]  (!!) #-}
 -- (!!) :: [a] -> Int -> a
@@ -122,7 +106,6 @@ elemIndices x = findIndices (x==)
     forall x xs.
     elemIndices @LBS.ByteString x xs = fromIntegral <$> (LBS.elemIndices x xs)
 #-}
-
 
 
 {-# inline [2] findIndex #-}

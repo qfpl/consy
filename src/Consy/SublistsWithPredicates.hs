@@ -1,17 +1,7 @@
-{-
-== Sublists (Predicates) ==
-+ isPrefixOf
-+ isSuffixOf
-+ isInfixOf
-+ isSubsequenceOf
--}
-
 {-# language NoImplicitPrelude #-}
 {-# language RankNTypes #-}
 {-# language ScopedTypeVariables #-}
 {-# language TypeApplications #-}
--- {-# language BangPatterns #-}
--- {-# language PatternSynonyms #-}
 module Consy.SublistsWithPredicates
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -44,7 +34,6 @@ import Consy.ExtractingSublists (tails)
 import Consy.SearchingWithPredicate (find)
 import Consy.SpecialFolds (any)
 
-{- ___ Sublists (Predicates) ________________________________________________ -}
 
 {-# inline [2] isPrefixOf #-}
 -- isPrefixOf :: Eq a => [a] -> [a] -> Bool
@@ -84,6 +73,7 @@ isPrefixOf = go
     forall xs ys.
     isPrefixOf @LBS.ByteString xs ys = LBS.isPrefixOf xs ys
 #-}
+
 
 {-# inline [2] isSuffixOf #-}
 -- isSuffixOf :: Eq a => [a] -> [a] -> Bool
@@ -163,6 +153,7 @@ isInfixOf = \needle haystack -> any (isPrefixOf needle) (tails haystack :: [s])
 
 
 isSubsequenceOf :: (Eq a, Cons s s a a) => s -> s -> Bool
+-- isSubsequenceOf :: (Eq a) => [a] -> [a] -> Bool
 isSubsequenceOf = go
   where
     go a t =

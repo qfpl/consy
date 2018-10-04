@@ -1,18 +1,5 @@
-{-
-== Infinite lists ==
-+ iterate
-+ iterate'
-+ repeat
-+ replicate
-+ cycle
--}
-
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
--- {-# language BangPatterns #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
 module Consy.InfiniteLists
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -48,8 +35,6 @@ import Consy.Basic (append)
 import Consy.Folds (build)
 import Consy.ExtractingSublists (take)
 
-
-{- ___ Infinite lists _______________________________________________________ -}
 
 {-# noinline [1] iterate #-}
 -- iterate :: (a -> a) -> a -> [a]
@@ -88,7 +73,7 @@ iterateFB c f x0 = go x0
 
 
 {-# noinline [1] iterate' #-}
- -- iterate' :: (a -> a) -> a -> [a]
+-- iterate' :: (a -> a) -> a -> [a]
 iterate' :: (AsEmpty s, Cons s s a a) => (a -> a) -> a -> s
 iterate' f = go
   where

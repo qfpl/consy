@@ -1,20 +1,3 @@
-{-
-== Sublists (Extracting sublists) ==
-+ take
-+ drop
-+ splitAt
-+ takeWhile
-+ dropWhile
-+ dropWhileEnd
-+ span
-+ break
-+ stripPrefix
-+ group
-+ groupBy
-+ inits
-+ tails
--}
-
 {-# language BangPatterns #-}
 {-# language FlexibleContexts #-}
 {-# language NoImplicitPrelude #-}
@@ -63,8 +46,6 @@ import qualified Data.Vector
 import Consy.Basic
 import Consy.Folds
 
-
-{- ___ Sublists (Extracting sublists) _______________________________________ -}
 
 {-# inline [1] take #-}
 -- take :: Int -> [a] -> [a]

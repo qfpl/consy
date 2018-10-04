@@ -1,19 +1,7 @@
-{-
-== Reducing lists (folds) ==
-+ foldl
-+ foldl'
-+ foldl1
-+ foldl1'
-+ foldr
-+ foldr1
--}
-
 {-# language NoImplicitPrelude #-}
 {-# language RankNTypes #-}
 {-# language ScopedTypeVariables #-}
 {-# language TypeApplications #-}
--- {-# language PatternSynonyms #-}
--- {-# language BangPatterns #-}
 module Consy.Folds
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -49,11 +37,8 @@ import qualified Data.Text.Lazy
 import qualified Data.Vector
 
 
-{- ___ Reducing lists (folds) _______________________________________________ -}
-
 {-# inline [1] augment #-}
 -- augment :: forall a. (forall b. (a->b->b) -> b -> b) -> [a] -> [a]
--- augment g xs = g (:) xs
 augment :: Cons s s a a
   => (forall b. (a->b->b) -> b -> b)
       -> s
@@ -64,6 +49,7 @@ augment g xs = g cons xs
     forall k z xs (g::forall b. (a->b->b) -> b -> b).
     foldr k z (augment g xs) = g k (foldr k z xs)
 #-}
+
 
 {-# inline [1] build #-}
 -- build :: forall a. (forall b. (a -> b -> b) -> b -> b) -> [a]

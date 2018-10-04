@@ -1,8 +1,3 @@
-{-
-== Unfolding ==
-+ unfoldr
--}
-
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
 module Consy.Unfolding
@@ -27,8 +22,6 @@ import qualified Data.Vector
 
 import Consy.Folds (build)
 
-
-{- ___ Unfolding ____________________________________________________________ -}
 
 {-# inline [2] unfoldr #-}
 -- unfoldr :: (b -> Maybe (a, b)) -> b -> [a]

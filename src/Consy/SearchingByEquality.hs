@@ -1,17 +1,6 @@
-{-
-== Searching lists (Searching by equality) ==
-+ elem
-+ notElem
-+ lookup
--}
-
 {-# language FlexibleContexts #-}
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
--- {-# language BangPatterns #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
 module Consy.SearchingByEquality
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -36,10 +25,7 @@ import qualified Data.ByteString as BS
 import qualified Data.Vector
 
 import Consy.Folds (build)
--- import Consy.SpecialFolds (any)
 
-
-{- ___ Searching lists (Searching by equality) ______________________________ -}
 
 {-# noinline [1] elem #-}
 -- elem :: (Eq a) => a -> [a] -> Bool
@@ -80,14 +66,12 @@ elem x = go x
 {-# noinline [1] notElem #-}
 -- notElem :: (Eq a) => a -> [a] -> Bool
 notElem :: (Eq a, AsEmpty s, Cons s s a a) => a -> s -> Bool
--- notElem x s = not (elem x s)
 notElem x = go x
   where
     go x s =
       case uncons s of
         Nothing -> True
         Just (a, as) -> x /= a && go x as
-
 
 {-# rules
 "cons notElem/build"
@@ -125,13 +109,3 @@ lookup = go
         Just ((a,b), as)
           | a == key -> Just b
           | otherwise -> go key as
-
---  QUESTION: do we need to care about Seq ?
--- lookup :: Int -> Seq a -> Maybe a
--- {-# rules
--- "cons lookup seq" [~1]
---     lookup @_  @(Seq _) = Data.Sequence.lookup
--- "cons lookup seq eta" [~1]
---     forall key xs.
---     lookup @(Seq _) key xs = Data.Sequence.lookup (fromIntegral key) xs
--- #-}

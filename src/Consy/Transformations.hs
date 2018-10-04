@@ -1,14 +1,3 @@
-{-
-== List transformations ==
-+ map
-+ reverse
-+ intersperse
-+ intercalate
-+ transpose
-+ subsequences
-permutations
--}
-
 {-# language NoImplicitPrelude #-}
 {-# language ScopedTypeVariables #-}
 {-# language TypeApplications #-}
@@ -46,7 +35,9 @@ import qualified Data.Vector
 import Consy.Folds (build, foldl, foldr)
 import Consy.SpecialFolds (concat, concatMap)
 
+
 {-# inline [2] reverse #-}
+-- reverse :: [a] -> [a]
 reverse :: forall s a. (AsEmpty s, Cons s s a a) => s -> s
 reverse = foldl (flip cons) Empty
 
@@ -90,6 +81,7 @@ reverse = foldl (flip cons) Empty
 
 
 {-# inline [2] intersperse #-}
+-- intersperse :: a -> [a] -> [a]
 intersperse :: (AsEmpty s, Cons s s a a) => a -> s -> s
 intersperse = \sep s ->
   case uncons s of
@@ -230,6 +222,7 @@ transpose = go
 subsequences :: (AsEmpty s, Cons s s a a) => s -> [s]
 subsequences s = Empty : nonEmptySubsequences s
 
+
 -- nonEmptySubsequences :: [a] -> [[a]]
 nonEmptySubsequences :: (AsEmpty s, Cons s s a a) => s -> [s]
 nonEmptySubsequences = go
@@ -246,6 +239,7 @@ nonEmptySubsequences = go
 -- Note: not in Text, Lazy Text, nor in BS, LBS
 
 {-# inline permutations #-}
+-- permutations :: [a] -> [[a]]
 permutations :: forall s a. (AsEmpty s, Cons s s a a) => s -> [s]
 permutations = go
   where

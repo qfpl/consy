@@ -1,16 +1,5 @@
-{-
-== Searching lists (Searching with a predicate) ==
-+ find
-+ filter
-+ partition
--}
-
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
--- {-# language BangPatterns #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
 module Consy.SearchingWithPredicate
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -39,7 +28,6 @@ import qualified Data.Vector
 
 import Consy.Folds (build, foldr)
 
-{- ___ Searching lists (Searching with a predicate) _________________________ -}
 
 {-# noinline [0] find #-}
 -- find :: Foldable t => (a -> Bool) -> t a -> Maybe a

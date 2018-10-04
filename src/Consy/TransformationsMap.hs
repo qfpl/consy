@@ -1,16 +1,5 @@
-{-
-== List transformations ==
-+ map
--}
-
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
--- {-# language AllowAmbiguousTypes #-}
--- {-# language BangPatterns #-}
--- {-# language FlexibleContexts #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
 module Consy.TransformationsMap
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -37,8 +26,6 @@ import qualified Data.Vector
 
 import Consy.Folds (build, foldr)
 
-
-{- ___ List transformations _________________________________________________ -}
 
 {-# inline [0] map #-}
 -- map ::  (a -> b) -> [a] -> [b]

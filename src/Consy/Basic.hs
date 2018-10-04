@@ -1,14 +1,3 @@
-{-
-== Basic functions ==
-+ (++)
-+ head
-+ last
-+ tail
-+ init
-+ null
-+ length
--}
-
 {-# language BangPatterns #-}
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
@@ -47,8 +36,6 @@ import qualified Data.Vector
 
 import Consy.Folds (augment, build, foldr, foldl)
 
-
-{- ___ Basic functions ______________________________________________________ -}
 
 {-# inline [1] append #-}
 -- (++) :: [a] -> [a] -> [a]
@@ -105,6 +92,7 @@ append = go
     append @(Seq _) a b = (Data.Sequence.><) a b
 #-}
 
+
 {-# noinline [1] head #-}
 -- head :: [a] -> a
 head :: Cons s s a a => s -> a
@@ -159,37 +147,36 @@ last :: (AsEmpty s, Cons s s a a) => s -> a
 last = \xs -> foldl (\_ x -> x) (errorEmptyList "last") xs
 
 {-# rules
-
 "cons last text" [~2]
-   last @Text = Data.Text.last
+    last @Text = Data.Text.last
 "cons last text eta" [~2]
-   forall a.
-   -- last @Data.Text.Text a = Data.Text.last a
-   last @Data.Text.Text a = Data.Text.foldl (\_ x -> x) (errorEmptyList "tail") a
+    forall a.
+    -- last @Data.Text.Text a = Data.Text.last a
+    last @Data.Text.Text a = Data.Text.foldl (\_ x -> x) (errorEmptyList "tail") a
 
 "cons last ltext" [~2]
-   last @Data.Text.Lazy.Text = Data.Text.Lazy.last
+    last @Data.Text.Lazy.Text = Data.Text.Lazy.last
 "cons last ltext eta" [~2]
-   forall a.
-   last @Data.Text.Lazy.Text a = Data.Text.Lazy.last a
+    forall a.
+    last @Data.Text.Lazy.Text a = Data.Text.Lazy.last a
 
 "cons last vector" [~2]
-   last @(Vector _) = Data.Vector.last
+    last @(Vector _) = Data.Vector.last
 "cons last vector eta" [~2]
-   forall a.
-   last @(Vector _) a = Data.Vector.last a
+    forall a.
+    last @(Vector _) a = Data.Vector.last a
 
 "cons last bs" [~2]
-   last @BS.ByteString = BS.last
+    last @BS.ByteString = BS.last
 "cons last bs eta" [~2]
-   forall a.
-   last @BS.ByteString a = BS.last a
+    forall a.
+    last @BS.ByteString a = BS.last a
 
 "cons last lbs" [~2]
-   last @LBS.ByteString = LBS.last
+    last @LBS.ByteString = LBS.last
 "cons last lbs eta" [~2]
-   forall a.
-   last @LBS.ByteString a = LBS.last a
+    forall a.
+    last @LBS.ByteString a = LBS.last a
 #-}
 
 
@@ -280,42 +267,6 @@ init = go
     forall a.
     init @LBS.ByteString a = LBS.init a
 #-}
-
-
--- -- QUESTION:  already implemented for Cons, does it required to reimplement?
--- {-# inline [2] uncons #-}
--- -- uncons :: [a] -> Maybe(a, [a])
--- uncons :: (AsEmpty s, Cons s s a a) => s -> Maybe (a, s)
--- uncons = \s ->
---       case uncons s of
---         Nothing -> Nothing
---         Just (a,s) -> Just (a,s)
---
--- {-# rules
--- "cons uncons text" [~2]
---     Consy.uncons @Text = Data.Text.uncons
--- "cons uncons text eta" [~2]
---     forall a.
---     Consy.uncons @Data.Text.Text a = Data.Text.uncons a
---
--- "cons uncons ltext" [~2]
---     Consy.uncons @Data.Text.Lazy.Text = Data.Text.Lazy.uncons
--- "cons uncons ltext eta" [~2]
---     forall a.
---     Consy.uncons @Data.Text.Lazy.Text a = Data.Text.Lazy.uncons a
---
--- "cons uncons bs" [~2]
---     uncons @BS.ByteString = BS.uncons
--- "cons uncons bs eta" [~2]
---     forall a.
---     uncons @BS.ByteString a = BS.uncons a
---
--- "cons uncons lbs" [~2]
---     uncons @LBS.ByteString = LBS.uncons
--- "cons uncons lbs eta" [~2]
---     forall a.
---     uncons @LBS.ByteString a = LBS.uncons a
--- #-}
 
 
 {-# inline [2] null #-}

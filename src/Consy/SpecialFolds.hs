@@ -1,24 +1,6 @@
-{-
-== Special folds ==
-+ concat
-+ concatMap
-+ and
-+ or
-+ any
-+ all
-+ sum
-+ product
-+ maximum
-+ minimum
--}
-
 {-# language FlexibleContexts #-}
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
--- {-# language BangPatterns #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
 module Consy.SpecialFolds
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -60,8 +42,6 @@ import qualified Data.Vector
 import Consy.Basic (append)
 import Consy.Folds (build, foldl, foldl1, foldr)
 
-
-{- ___ Special folds ________________________________________________________ -}
 
 {-# noinline [1] concat #-}
 -- concat :: [[a]] -> [a]
@@ -150,12 +130,6 @@ concatMap f = \as -> foldr (append . f) Empty as
 -- and :: [Bool] -> Bool
 and :: (Cons s s Bool Bool) => s -> Bool
 and = foldr (&&) True
--- and = go
---   where
---     go a =
---       case uncons a of
---         Nothing -> True
---         Just (x, xs) -> x && go xs
 
 {-# rules
 "cons and/build"
@@ -172,15 +146,9 @@ and = foldr (&&) True
 
 {-# inline [1] or #-}
 -- or :: [Bool] -> Bool
--- Foldable t => t Bool -> Bool
+-- or :: Foldable t => t Bool -> Bool
 or :: (Cons s s Bool Bool) => s -> Bool
 or = foldr (||) False
--- or = go
---   where
---     go a =
---       case uncons a of
---         Nothing -> False
---         Just (x, xs) -> x || go xs
 
 {-# rules
 "cons or/build"
@@ -248,7 +216,6 @@ any p = go
 -- all :: (a -> Bool) -> [a] -> Bool
 -- all :: Foldable t => (a -> Bool) -> t a -> Bool
 all :: (AsEmpty s, Cons s s a a) => (a -> Bool) -> s -> Bool
--- all p = and . map p
 all p = go
   where
   go s =

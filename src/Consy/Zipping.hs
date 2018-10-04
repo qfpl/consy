@@ -1,32 +1,6 @@
-{-
-== Zipping and unzipping Sublist ==
-+ zip
-+ zip3
-+ zip4
-+ zip5
-+ zip6
-+ zip7
-+ zipWith
-+ zipWith3
-+ zipWith4
-+ zipWith5
-+ zipWith6
-+ zipWith7
-+ unzip
-+ unzip3
-+ unzip4
-+ unzip5
-+ unzip6
-+ unzip7
--}
-
 {-# language FlexibleContexts #-}
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
--- {-# language BangPatterns #-}
--- {-# language PatternSynonyms #-}
--- {-# language RankNTypes #-}
--- {-# language ScopedTypeVariables #-}
 module Consy.Zipping
   ( module Control.Lens.Cons
   , module Control.Lens.Empty
@@ -70,8 +44,6 @@ import qualified Data.Vector
 import Consy.Folds
 
 
-{- ___ Zipping and unzipping Sublist ________________________________________ -}
-
 {-# inline [0] foldr2 #-}
 -- foldr2 :: (a -> b -> c -> c) -> c -> [a] -> [b] -> c
 foldr2 :: (Cons s s a a, Cons t t b b) => (a -> b -> c -> c) -> c -> s -> t -> c
@@ -98,7 +70,7 @@ foldr2_left k z x r y =
     foldr2 k z (build g) ys = g (foldr2_left  k z) (\_ -> z) ys
 #-}
 
-{- QUESTION: Cons u u (a,b)(a,b)   or    Cons u u c c      -}
+
 {-# inline [1] zip #-}
 -- zip :: [a] -> [b] -> [(a,b)]
 zip ::

@@ -118,19 +118,19 @@ where
 import Control.Lens.Cons
 import Control.Lens.Empty
 
-import Consy.Basic                  -- done
-import Consy.TransformationsMap     -- done, contains only `map` due to recursive import
+import Consy.Basic
+import Consy.TransformationsMap
 import Consy.Transformations
 import Consy.Folds
-import Consy.SpecialFolds           -- done
-import Consy.AccumulatingMaps       -- done
-import Consy.InfiniteLists          -- done
-import Consy.Unfolding              -- done
-import Consy.ExtractingSublists     -- done
+import Consy.SpecialFolds
+import Consy.AccumulatingMaps
+import Consy.InfiniteLists
+import Consy.Unfolding
+import Consy.ExtractingSublists
 import Consy.Scans
-import Consy.SublistsWithPredicates -- done
-import Consy.SearchingByEquality    -- done
-import Consy.SearchingWithPredicate -- done
+import Consy.SublistsWithPredicates
+import Consy.SearchingByEquality
+import Consy.SearchingWithPredicate
 import Consy.Traversable
-import Consy.Indexing               -- done
-import Consy.Zipping                -- done
+import Consy.Indexing
+import Consy.Zipping
