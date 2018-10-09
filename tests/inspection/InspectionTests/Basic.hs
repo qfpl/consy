@@ -1,18 +1,6 @@
-{- Inspection tests for
-== Basic functions ==
-+ append (++)
-+ head
-+ last
-+ tail
-+ init
-? uncons
-+ null
-+ length
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Basic where
 
@@ -50,6 +38,7 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
 
 
@@ -288,13 +277,6 @@ listLength = go 0
         _ : xs -> go (n + 1) xs
 inspect ('consListLength === 'listLength)
 
--- QUESTION why these noinline switches?
--- with these switches rules `cons foldr text` and `cons length text`
---  are still fires
-{-# noinline consLength #-}
-{-# noinline consFoldrLength #-}
-{-# noinline textFoldrLength #-}
-{-# noinline textLength #-}
 consLength, consFoldrLength, textFoldrLength, textLength :: Text -> Int
 consLength = length
 textLength = Data.Text.length
@@ -302,8 +284,6 @@ consFoldrLength = foldr (\_ -> (+1)) 0
 textFoldrLength = Data.Text.foldr (\_ -> (+1)) 0
 inspect ('consLength === 'textLength)
 
-{-# noinline consFoldl'Length #-}
-{-# noinline textFoldl'Length #-}
 consFoldl'Length, textFoldl'Length :: Text -> Int
 consFoldl'Length = foldl' (\b _ -> b + 1) 0
 textFoldl'Length = Data.Text.foldl' (\b _ -> b + 1) 0

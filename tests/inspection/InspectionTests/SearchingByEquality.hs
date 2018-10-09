@@ -1,13 +1,6 @@
-{- Inspection tests for
-== Searching lists (Searching by equality) ==
-+ elem
-+ notElem
-+ lookup
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.SearchingByEquality where
 
@@ -21,13 +14,13 @@ import Test.Inspection
 import qualified Data.ByteString
 import qualified Data.ByteString.Lazy
 import qualified Data.Vector
+
 import Consy
 
 
 {- elem -}
 consElem, listElem :: Eq a => a -> [a] -> Bool
 consElem = elem
--- listElem x = Data.List.any (== x)
 listElem x = go x
   where
     go x s =

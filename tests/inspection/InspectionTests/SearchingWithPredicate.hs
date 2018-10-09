@@ -1,13 +1,6 @@
-{- Inspection tests for
-== Searching lists (Searching with a predicate) ==
-+ find
-+ filter
-+ partition
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.SearchingWithPredicate where
 
@@ -45,7 +38,9 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
+
 
 {- find -}
 consFind, listFind :: (a -> Bool) -> [a] -> Maybe a
@@ -58,11 +53,12 @@ listFind p = go
       | otherwise = go xs
 inspect ('consFind === 'listFind)
 
--- consFindZipList, zipListFind :: (a -> Bool) -> ZipList a -> Maybe a
--- consFindZipList = find
--- zipListFind p = coerce (listFind p)
--- inspect ('consFindZipList ==- 'zipListFind)
-
+{-
+consFindZipList, zipListFind :: (a -> Bool) -> ZipList a -> Maybe a
+consFindZipList = find
+zipListFind p = coerce (listFind p)
+inspect ('consFindZipList ==- 'zipListFind)
+-}
 
 {- filter -}
 consFilter, listFilter :: (a -> Bool) -> [a] -> [a]
@@ -74,10 +70,12 @@ listFilter p = go
       | p x = x : go xs | otherwise = go xs
 inspect ('consFilter === 'listFilter)
 
--- consFilterZipList, zipListFilter :: (a -> Bool) -> ZipList a -> ZipList a
--- consFilterZipList = filter
--- zipListFilter p = coerce (listFilter p)
--- inspect ('consFilterZipList ==- 'zipListFilter)
+{-
+consFilterZipList, zipListFilter :: (a -> Bool) -> ZipList a -> ZipList a
+consFilterZipList = filter
+zipListFilter p = coerce (listFilter p)
+inspect ('consFilterZipList ==- 'zipListFilter)
+-}
 
 consFilterText, textFilter :: (Char -> Bool) -> Text -> Text
 consFilterText = filter
@@ -104,8 +102,6 @@ consMapFilter p = filter p . map (+1)
 listMapFilter p = Data.List.filter p . Data.List.map (+1)
 inspect ('consMapFilter === 'listMapFilter)
 
-{-# noinline consFilterSeq #-}
-{-# noinline seqFilter #-}
 consFilterSeq, seqFilter :: (a -> Bool) -> Seq a -> Seq a
 consFilterSeq = filter
 seqFilter = Data.Sequence.filter

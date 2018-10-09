@@ -1,15 +1,6 @@
-{- Inspection tests for
-== Infinite lists ==
-+ iterate
-+ iterate'
-+ repeat
-+ replicate
-+ cycle
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.InfiniteLists where
 
@@ -47,6 +38,7 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
 
 
@@ -150,8 +142,6 @@ consReplicateMap' n = map (+10) (replicate n 10 :: [Int])
 listReplicateMap' n = Data.List.map (+10) (Data.List.replicate n 10)
 inspect ('consReplicateMap' === 'listReplicateMap')
 
-{-# noinline consReplicateText #-}
-{-# noinline textReplicate #-}
 consReplicateText, textReplicate :: Int -> Char -> Text
 consReplicateText = replicate
 textReplicate n = Data.Text.replicate n . Data.Text.singleton
@@ -176,10 +166,3 @@ consCycleLBS, lbsCycle :: Data.ByteString.Lazy.ByteString -> Data.ByteString.Laz
 consCycleLBS = cycle
 lbsCycle = Data.ByteString.Lazy.cycle
 inspect ('consCycleLBS === 'lbsCycle)
-
--- consCycle', listCycle' :: [Char]
--- consCycle' = cycle [1,2,3]
--- listCycle' = Data.List.cycle [1,2,3]
--- consCycle' = Data.List.take 10 (Consy.cycle "abc")
--- listCycle' = Data.List.take 10 (Data.List.cycle "abc")
--- inspect ('consCycle' === 'listCycle')

@@ -1,18 +1,7 @@
-{- Inspection tests for
-== List transformations ==
-+ map
-+ reverse
-+ intersperse
-+ intercalate
-+ transpose
-+ subsequences
-permutations
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
 {-# language ScopedTypeVariables #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.TransformationsMap where
 
@@ -50,10 +39,11 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
 
-{- map -}
 
+{- map -}
 consMapList, listMap :: (a -> b) -> [a] -> [b]
 consMapList = map
 listMap f = go

@@ -1,23 +1,6 @@
-{- Inspection tests for
-== Sublists (Extracting sublists) ==
-+ take
-+ drop
-+ splitAt
-+ takeWhile
-+ dropWhile
-+ dropWhileEnd
-+ span
-+ break
-+ stripPrefix
-+ group
-+ groupBy
-+ inits
-+ tails
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.ExtractingSublists where
 
@@ -57,7 +40,6 @@ import qualified Data.Vector
 import qualified Data.Word
 
 import Consy
-
 import Orphans
 
 
@@ -184,8 +166,6 @@ consDropLBS = drop
 lbsDrop = \n -> Data.ByteString.Lazy.drop (fromIntegral n)
 inspect ('consDropLBS === 'lbsDrop)
 
-{-# noinline consDropSeq #-}
-{-# noinline seqDrop #-}
 consDropSeq, seqDrop :: Int -> Data.Sequence.Seq a -> Data.Sequence.Seq a
 consDropSeq = drop
 seqDrop = Data.Sequence.drop
@@ -419,7 +399,6 @@ inspect ('consSpanLBS === 'lbsSpan)
 {- break -}
 consBreakList, listBreak :: (a -> Bool) -> [a] -> ([a], [a])
 consBreakList = break
--- listBreak = \p xs -> Data.List.span (not . p) xs
 listBreak = \p -> listSpan (not . p)
 inspect ('consBreakList === 'listBreak)
 

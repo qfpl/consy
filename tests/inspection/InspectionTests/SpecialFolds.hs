@@ -1,20 +1,6 @@
-{- Inspection tests for
-== Special folds ==
-+ concat
-+ concatMap
-+ and
-+ or
-+ any
-+ all
-+ sum
-+ product
-+ maximum
-+ minimum
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.SpecialFolds where
 
@@ -52,6 +38,7 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
 
 
@@ -144,7 +131,6 @@ inspect ('consOrVector === 'vectorOr)
 
 
 {- any -}
--- consAny, listAny :: Foldable t => (a -> Bool) -> t a -> Bool
 consAny, listAny :: (a -> Bool) -> [a] -> Bool
 consAny = any
 listAny p = go
@@ -182,7 +168,6 @@ inspect ('consAnyLBS === 'lbsAny)
 
 
 {- all -}
--- consAll, listAll :: Foldable t => (a -> Bool) -> t a -> Bool
 consAll, listAll :: (a -> Bool) -> [a] -> Bool
 consAll = all
 listAll p = go
@@ -235,6 +220,7 @@ consSumSeq = sum
 seqSum = Data.Foldable.sum
 inspect ('consSumSeq === 'seqSum)
 
+
 {- product -}
 consProduct, listProduct :: Num a => [a] -> a
 consProduct = product
@@ -250,6 +236,7 @@ consProductSeq, seqProduct :: Num a => Data.Sequence.Seq a -> a
 consProductSeq = product
 seqProduct = Data.Foldable.product
 inspect ('consProductSeq === 'seqProduct)
+
 
 {- maximum -}
 consMaximum, listMaximum :: (Ord a) => [a] -> a

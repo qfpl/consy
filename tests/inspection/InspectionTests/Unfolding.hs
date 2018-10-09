@@ -1,11 +1,6 @@
-{- Inspection tests for
-== Unfolding ==
-+ unfoldr
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Unfolding where
 
@@ -43,7 +38,9 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
+
 
 {- unfoldr -}
 consListUnfoldr, listUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]

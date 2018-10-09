@@ -1,12 +1,6 @@
-{- Inspection tests for
-== Accumulating maps ==
-mapAccumL
-mapAccumR
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.AccumulatingMaps where
 
@@ -21,10 +15,11 @@ import qualified Data.Vector
 
 import Consy
 
+
+{- mapAccumL -}
 consMapAccumLList, mapAccumLList :: (a -> b -> (a, c)) -> a -> [b] -> (a, [c])
 consMapAccumLList = mapAccumL
 mapAccumLList = Data.List.mapAccumL
-
 inspect ('consMapAccumLList === 'mapAccumLList)
 
 consMapAccumLText, mapAccumLText
@@ -34,7 +29,6 @@ consMapAccumLText, mapAccumLText
   -> (a, Data.Text.Text)
 consMapAccumLText = mapAccumL
 mapAccumLText = Data.Text.mapAccumL
-
 inspect ('consMapAccumLText === 'mapAccumLText)
 
 consMapAccumLLazyText, mapAccumLLazyText
@@ -44,7 +38,6 @@ consMapAccumLLazyText, mapAccumLLazyText
   -> (a, Data.Text.Lazy.Text)
 consMapAccumLLazyText = mapAccumL
 mapAccumLLazyText = Data.Text.Lazy.mapAccumL
-
 inspect ('consMapAccumLLazyText === 'mapAccumLLazyText)
 
 consMapAccumLVector, mapAccumLVector
@@ -54,14 +47,13 @@ consMapAccumLVector, mapAccumLVector
   -> (a, Data.Vector.Vector c)
 consMapAccumLVector = mapAccumL
 mapAccumLVector = Data.List.mapAccumL
-
 inspect ('consMapAccumLVector === 'mapAccumLVector)
 
 
+{- mapAccumR -}
 consMapAccumRList, mapAccumRList :: (a -> b -> (a, c)) -> a -> [b] -> (a, [c])
 consMapAccumRList = mapAccumR
 mapAccumRList = Data.List.mapAccumR
-
 inspect ('consMapAccumRList === 'mapAccumRList)
 
 consMapAccumRText, mapAccumRText
@@ -71,7 +63,6 @@ consMapAccumRText, mapAccumRText
   -> (a, Data.Text.Text)
 consMapAccumRText = mapAccumR
 mapAccumRText = Data.Text.mapAccumR
-
 inspect ('consMapAccumRText === 'mapAccumRText)
 
 consMapAccumRLazyText, mapAccumRLazyText
@@ -81,7 +72,6 @@ consMapAccumRLazyText, mapAccumRLazyText
   -> (a, Data.Text.Lazy.Text)
 consMapAccumRLazyText = mapAccumR
 mapAccumRLazyText = Data.Text.Lazy.mapAccumR
-
 inspect ('consMapAccumRLazyText === 'mapAccumRLazyText)
 
 consMapAccumRVector, mapAccumRVector
@@ -91,5 +81,4 @@ consMapAccumRVector, mapAccumRVector
   -> (a, Data.Vector.Vector c)
 consMapAccumRVector = mapAccumR
 mapAccumRVector = Data.List.mapAccumR
-
 inspect ('consMapAccumRVector === 'mapAccumRVector)

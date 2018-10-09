@@ -1,16 +1,6 @@
-{- Inspection tests for
-== Reducing lists (folds) ==
-+ foldl
-+ foldl'
-+ foldl1
-+ foldl1'
-+ foldr
-+ foldr1
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Folds where
 
@@ -48,6 +38,7 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
 
 
@@ -67,8 +58,6 @@ consFoldlText4 = foldl (\a _ -> a + 1) 0 (pack "aaaa")
 textFoldl4 = Data.Text.foldl (\a _ -> a + 1) 0 (pack "aaaa")
 inspect ('consFoldlText4 === 'textFoldl4)
 
-{-# noinline consFoldlSeq #-}
-{-# noinline seqFoldl #-}
 consFoldlSeq, seqFoldl :: (b -> a -> b) -> b -> Seq a -> b
 consFoldlSeq = foldl
 seqFoldl = Data.Foldable.foldl
@@ -91,8 +80,6 @@ consFoldl'Text4 = foldl' (\a _ -> a + 1) 0 (pack "aaaa")
 textFoldl'4 = Data.Text.foldl' (\a _ -> a + 1) 0 (pack "aaaa")
 inspect ('consFoldl'Text4 === 'textFoldl'4)
 
-{-# noinline consFoldl'Seq #-}
-{-# noinline seqFoldl' #-}
 consFoldl'Seq, seqFoldl' :: (b -> a -> b) -> b -> Seq a -> b
 consFoldl'Seq = foldl'
 seqFoldl' = Data.Foldable.foldl'
@@ -110,8 +97,6 @@ consFoldl1Text4 = foldl1 (\a _ -> '*')  (pack "aaaa")
 textFoldl14 = Data.Text.foldl1 (\a _ -> '*')  (pack "aaaa")
 inspect ('consFoldl1Text4 === 'textFoldl14)
 
-{-# noinline consFoldl1Seq #-}
-{-# noinline seqFoldl1 #-}
 consFoldl1Seq, seqFoldl1 :: (a -> a -> a) -> Seq a -> a
 consFoldl1Seq = foldl1
 seqFoldl1 = Data.Foldable.foldl1
@@ -130,7 +115,6 @@ textFoldl1'4 = Data.Text.foldl1' (\a _ -> '*')  (pack "aaaa")
 inspect ('consFoldl1'Text4 === 'textFoldl1'4)
 
 
-
 {- foldr1 -}
 consFoldr1Text, textFoldr1 :: (Char -> Char -> Char) -> Text -> Char
 consFoldr1Text = foldr1
@@ -142,8 +126,6 @@ consFoldr1Text4 = foldr1 (\a _ -> '*')  (pack "aaaa")
 textFoldr14 = Data.Text.foldr1 (\a _ -> '*')  (pack "aaaa")
 inspect ('consFoldr1Text4 === 'textFoldr14)
 
-{-# noinline consFoldr1Seq #-}
-{-# noinline seqFoldr1 #-}
 consFoldr1Seq, seqFoldr1 :: (a -> a -> a) -> Seq a -> a
 consFoldr1Seq = foldr1
 seqFoldr1 = Data.Foldable.foldr1

@@ -1,15 +1,7 @@
-{- Inspection tests for
-== Sublists (Predicates) ==
-+ isPrefixOf
-+ isSuffixOf
-+ isInfixOf
-+ isSubsequenceOf
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
 {-# language RankNTypes #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.SublistsWithPredicates where
 
@@ -47,6 +39,7 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
 
 
@@ -130,6 +123,7 @@ consIsSuffixOfLBS = isSuffixOf
 lbsIsSuffixOf = Data.ByteString.Lazy.isSuffixOf
 inspect ('consIsSuffixOfLBS === 'lbsIsSuffixOf)
 
+
 {- isInfixOf -}
 consIsInfixOfList, listIsInfixOf :: forall a. Eq a => [a] -> [a] -> Bool
 consIsInfixOfList = isInfixOf
@@ -156,7 +150,6 @@ consIsInfixOfBS, bsIsInfixOf :: Data.ByteString.ByteString -> Data.ByteString.By
 consIsInfixOfBS = isInfixOf
 bsIsInfixOf = Data.ByteString.isInfixOf
 inspect ('consIsInfixOfBS === 'bsIsInfixOf)
-
 
 
 {- isSubsequenceOf -}

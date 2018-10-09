@@ -10,8 +10,6 @@ import Data.Coerce (coerce)
 import Data.Word (Word8)
 import Test.Inspection
 
-import Consy
-
 import qualified Data.ByteString
 import qualified Data.ByteString.Lazy
 import qualified Data.List
@@ -20,6 +18,10 @@ import qualified Data.Text
 import qualified Data.Text.Lazy
 import qualified Data.Vector
 
+import Consy
+
+
+{- scanl -}
 consScanlSeq, seqScanl :: (b -> a -> b) -> b -> Data.Sequence.Seq a -> Data.Sequence.Seq b
 consScanlSeq = scanl
 seqScanl = Data.Sequence.scanl
@@ -70,7 +72,7 @@ vectorLazyScanl = Data.Vector.scanl
 inspect ('consScanlVectorLazy === 'vectorLazyScanl)
 
 
-
+{- scanl' -}
 consScanl'List, listScanl' :: (b -> a -> b) -> b -> [a] -> [b]
 consScanl'List = scanl'
 listScanl' = scanl'Go
@@ -92,12 +94,11 @@ vectorLazyScanl' = Data.Vector.scanl'
 inspect ('consScanl'VectorLazy === 'vectorLazyScanl')
 
 
-
+{- scanl1 -}
 consScanl1List, listScanl1 :: (a -> a -> a) -> [a] -> [a]
 consScanl1List = scanl1
 listScanl1 f (x:xs) = scanl f x xs
 listScanl1 _ [] = []
-
 inspect ('consScanl1List === 'listScanl1)
 
 consScanl1Text, textScanl1
@@ -125,7 +126,7 @@ vectorLazyScanl1 = Data.Vector.scanl1
 inspect ('consScanl1VectorLazy === 'vectorLazyScanl1)
 
 
-
+{- scanr -}
 consScanrList, listScanr :: (a -> b -> b) -> b -> [a] -> [b]
 consScanrList = scanr
 listScanr _ q0 [] =  [q0]
@@ -165,7 +166,7 @@ vectorLazyScanr = Data.Vector.scanr
 inspect ('consScanrVectorLazy === 'vectorLazyScanr)
 
 
-
+{- scanr1 -}
 consScanr1List, listScanr1 :: (a -> a -> a) -> [a] -> [a]
 consScanr1List = scanr1
 listScanr1 _ [] = []

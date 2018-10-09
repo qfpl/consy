@@ -1,18 +1,9 @@
-{- Inspection tests for
-== Indexing Sublists ==
-+ (!!)
-+ elemIndex
-+ elemIndices
-+ findIndex
-+ findIndices
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
-{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE MagicHash #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
+{-# LANGUAGE Trustworthy #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Indexing where
 
@@ -40,6 +31,7 @@ import qualified Data.Text
 import qualified Data.Text.Lazy
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
 
 
@@ -147,8 +139,3 @@ consFindIndicesLBS, lbsFindIndices :: (Word8 -> Bool) -> Data.ByteString.Lazy.By
 consFindIndicesLBS p ls = fromIntegral <$> findIndices p ls
 lbsFindIndices = Data.ByteString.Lazy.findIndices
 inspect ('consFindIndicesLBS === 'lbsFindIndices)
-
--- consFindIndicesSeq, seqFindIndices :: (a -> Bool) -> Vector a -> Vector Int
--- consFindIndicesSeq = findIndices
--- seqFindIndices = Data.Vector.findIndices
--- inspect ('consFindIndicesSeq === 'seqFindIndices)

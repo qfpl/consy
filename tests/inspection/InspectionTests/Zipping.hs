@@ -1,28 +1,6 @@
-{- Inspection tests for
-== Zipping and unzipping Sublist ==
-+ zip
-+ zip3
-+ zip4
-+ zip5
-+ zip6
-+ zip7
-+ zipWith
-+ zipWith3
-+ zipWith4
-+ zipWith5
-+ zipWith6
-+ zipWith7
-+ unzip
-+ unzip3
-+ unzip4
-+ unzip5
-+ unzip6
-+ unzip7
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Zipping where
 
@@ -42,13 +20,13 @@ import qualified Data.Text
 import qualified Data.Text.Lazy
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
 
 
 {- zip -}
 consZip, listZip :: [a] -> [b] -> [(a,b)]
 consZip = zip
--- listZip = zipWith (,)
 listZip [] _ = []
 listZip _ [] = []
 listZip (a:as) (b:bs) = (a,b) : listZip as bs
@@ -79,8 +57,6 @@ consZipLBS = zip
 lbsZip = Data.ByteString.Lazy.zip
 inspect ('consZipLBS === 'lbsZip)
 
--- {-# noinline consZipSeq #-}
--- {-# noinline seqZip #-}
 consZipSeq, seqZip :: Seq a -> Seq b -> Seq (a,b)
 consZipSeq = zip
 seqZip = Data.Sequence.zip
@@ -90,7 +66,6 @@ inspect ('consZipSeq === 'seqZip)
 {- zip3 -}
 consZip3, listZip3 :: [a] -> [b] -> [c] -> [(a,b,c)]
 consZip3 = zip3
--- listZip3 = zipWith3 (,,)
 listZip3 (a:as) (b:bs) (c:cs) = (a,b,c) : listZip3 as bs cs
 listZip3 _ _ _ = []
 inspect ('consZip3 === 'listZip3)
@@ -100,8 +75,6 @@ consZip3Vector = zip3
 vectorZip3 = Data.Vector.zip3
 inspect ('consZip3Vector === 'vectorZip3)
 
--- {-# noinline consZip3Seq #-}
--- {-# noinline seqZip3 #-}
 consZip3Seq, seqZip3 :: Seq a -> Seq b -> Seq c -> Seq (a,b,c)
 consZip3Seq = zip3
 seqZip3 = Data.Sequence.zip3
@@ -111,7 +84,6 @@ inspect ('consZip3Seq === 'seqZip3)
 {- zip4 -}
 consZip4, listZip4 :: [a] -> [b] -> [c] -> [d] -> [(a,b,c,d)]
 consZip4 = zip4
--- listZip4 = zipWith4 (,,,)
 listZip4 (a:as) (b:bs) (c:cs) (d:ds) = (a,b,c,d) : listZip4 as bs cs ds
 listZip4 _ _ _ _ = []
 inspect ('consZip4 === 'listZip4)
@@ -121,8 +93,6 @@ consZip4Vector = zip4
 vectorZip4 = Data.Vector.zip4
 inspect ('consZip4Vector === 'vectorZip4)
 
--- {-# noinline consZip4Seq #-}
--- {-# noinline seqZip4 #-}
 consZip4Seq, seqZip4 :: Seq a -> Seq b -> Seq c -> Seq d -> Seq (a,b,c,d)
 consZip4Seq = zip4
 seqZip4 = Data.Sequence.zip4
@@ -132,7 +102,6 @@ inspect ('consZip4Seq === 'seqZip4)
 {- zip5 -}
 consZip5, listZip5 :: [a] -> [b] -> [c] -> [d] -> [e] -> [(a,b,c,d,e)]
 consZip5 = zip5
--- listZip5 = zipWith4 (,,,)
 listZip5 (a:as) (b:bs) (c:cs) (d:ds) (e:es) = (a,b,c,d,e) : listZip5 as bs cs ds es
 listZip5 _ _ _ _ _ = []
 inspect ('consZip5 === 'listZip5)
@@ -146,8 +115,7 @@ inspect ('consZip5Vector === 'vectorZip5)
 {- zip6 -}
 consZip6, listZip6 :: [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [(a,b,c,d,e,f)]
 consZip6 = zip6
--- listZip6 = zipWith5 (,,,,)
-listZip6 (a:as) (b:bs) (c:cs) (d:ds) (e:es) (f:fs )= (a,b,c,d,e,f) : listZip6 as bs cs ds es fs
+listZip6 (a:as) (b:bs) (c:cs) (d:ds) (e:es) (f:fs ) = (a,b,c,d,e,f) : listZip6 as bs cs ds es fs
 listZip6 _ _ _ _ _ _ = []
 inspect ('consZip6 === 'listZip6)
 
@@ -160,7 +128,6 @@ inspect ('consZip6Vector === 'vectorZip6)
 {- zip7 -}
 consZip7, listZip7 :: [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [g] -> [(a,b,c,d,e,f,g)]
 consZip7 = zip7
--- listZip7 = zipWith6 (,,,,,)
 listZip7 (a:as) (b:bs) (c:cs) (d:ds) (e:es) (f:fs) (g:gs) = (a,b,c,d,e,f,g) : listZip7 as bs cs ds es fs gs
 listZip7 _ _ _ _ _ _ _ = []
 inspect ('consZip7 === 'listZip7)
@@ -201,8 +168,6 @@ consZipWithLBS = zipWith
 lbsZipWith = Data.ByteString.Lazy.zipWith
 inspect ('consZipWithLBS === 'lbsZipWith)
 
--- {-# noinline consZipWithSeq #-}
--- {-# noinline seqZipWith #-}
 consZipWithSeq, seqZipWith :: (a -> b -> c) -> Seq a -> Seq b -> Seq c
 consZipWithSeq = zipWith
 seqZipWith = Data.Sequence.zipWith
@@ -223,8 +188,6 @@ consZipWith3Vector = zipWith3
 vectorZipWith3 = Data.Vector.zipWith3
 inspect ('consZipWith3Vector === 'vectorZipWith3)
 
--- {-# noinline consZipWith3Seq #-}
--- {-# noinline seqZipWith3 #-}
 consZipWith3Seq, seqZipWith3 :: (a -> b -> c -> d) -> Seq a -> Seq b -> Seq c -> Seq d
 consZipWith3Seq = zipWith3
 seqZipWith3 = Data.Sequence.zipWith3
@@ -245,8 +208,6 @@ consZipWith4Vector = zipWith4
 vectorZipWith4 = Data.Vector.zipWith4
 inspect ('consZipWith4Vector === 'vectorZipWith4)
 
--- {-# noinline consZipWith4Seq #-}
--- {-# noinline seqZipWith4 #-}
 consZipWith4Seq, seqZipWith4 :: (a -> b -> c -> d -> e) -> Seq a -> Seq b -> Seq c -> Seq d -> Seq e
 consZipWith4Seq = zipWith4
 seqZipWith4 = Data.Sequence.zipWith4

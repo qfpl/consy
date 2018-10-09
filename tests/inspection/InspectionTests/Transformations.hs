@@ -1,17 +1,6 @@
-{- Inspection tests for
-== List transformations ==
-+ map
-+ reverse
-+ intersperse
-+ intercalate
-+ transpose
-+ subsequences
-+ permutations
--}
-
-{-# language TemplateHaskell #-}
-{-# language NoImplicitPrelude #-}
 {-# language BangPatterns #-}
+{-# language NoImplicitPrelude #-}
+{-# language TemplateHaskell #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Transformations where
 
@@ -49,7 +38,9 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Internal.Fusion
 import qualified Data.Vector
 import qualified Data.Word
+
 import Consy
+
 
 {- reverse -}
 consListReverse, listReverse :: [a] -> [a]
@@ -86,6 +77,7 @@ consReverseSeq, seqReverse :: Data.Sequence.Seq a -> Data.Sequence.Seq a
 consReverseSeq = reverse
 seqReverse = Data.Sequence.reverse
 inspect ('consReverseSeq === 'seqReverse)
+
 
 {- intersperse -}
 consListIntersperse, listIntersperse :: a -> [a] -> [a]
@@ -124,7 +116,6 @@ consListIntercalate, listIntercalate :: [a] -> [[a]] -> [a]
 consListIntercalate = intercalate
 listIntercalate xs xss = concat (intersperse xs xss)
 inspect ('consListIntercalate === 'listIntercalate)
-
 
 consIntercalateText, textIntercalate :: Text -> [Text] -> Text
 consIntercalateText = intercalate
