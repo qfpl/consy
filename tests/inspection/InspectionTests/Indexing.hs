@@ -10,7 +10,7 @@ module InspectionTests.Indexing where
 import Data.Bool (Bool(..), otherwise)
 import Data.Char (Char)
 import Data.Eq (Eq(..))
-import Data.Function (($), (.))
+import Data.Function (($), (.), const)
 import Data.Functor (fmap, (<$>))
 import Data.Int (Int, Int64)
 import Data.Maybe (Maybe(..), listToMaybe)
@@ -18,8 +18,7 @@ import Data.Ord ((<))
 import Data.Text (Text)
 import Data.Vector (Vector)
 import Data.Word (Word8)
-import GHC.Base (Int( I# ), (+#), errorWithoutStackTrace)
-import qualified GHC.Base
+import GHC.Base (Int( I# ), (+#), errorWithoutStackTrace, build)
 import GHC.Num ((-))
 import GHC.Real (fromIntegral)
 import Test.Inspection
@@ -59,6 +58,7 @@ inspect ('consListIndex === 'listIndex)
 consElemIndex, listElemIndex :: Eq a => a -> [a] -> Maybe Int
 consElemIndex = elemIndex
 listElemIndex x = Data.List.findIndex (x==)
+-- FAILS on ghc 8.2.2
 inspect ('consElemIndex === 'listElemIndex)
 
 consElemIndexVector, vectorElemIndex :: Eq a => a -> Vector a -> Maybe Int
@@ -97,7 +97,7 @@ inspect ('consElemIndicesLBS === 'lbsElemIndices)
 {- findIndex -}
 consFindIndex, listFindIndex :: (a -> Bool) -> [a] -> Maybe Int
 consFindIndex = findIndex
-listFindIndex a = Data.Maybe.listToMaybe . Data.List.findIndices a
+listFindIndex p = Data.List.foldr (const . Just) Nothing . Data.List.findIndices p
 inspect ('consFindIndex === 'listFindIndex)
 
 consFindIndexText, textFindIndex :: (Char -> Bool) -> Text -> Maybe Int
