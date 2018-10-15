@@ -30,6 +30,7 @@ import qualified Data.Text
 import qualified Data.Text.Lazy
 import qualified Data.Vector
 
+import qualified Consy.Eq
 import Consy.ExtractingSublists (tails)
 import Consy.SearchingWithPredicate (find)
 import Consy.SpecialFolds (any)
@@ -77,11 +78,11 @@ isPrefixOf = go
 
 {-# inline [2] isSuffixOf #-}
 -- isSuffixOf :: Eq a => [a] -> [a] -> Bool
-isSuffixOf :: (AsEmpty s, Cons s s a a, Eq a, Eq s) => s -> s -> Bool
+isSuffixOf :: forall s a. (AsEmpty s, Cons s s a a, Eq a) => s -> s -> Bool
 isSuffixOf = \ns hs ->
   maybe False id $ do
     delta <- dropLengthMaybe ns hs
-    return (ns == dropLength delta hs)
+    return (ns Consy.Eq.== dropLength delta hs)
   where
     dropLength s t =
       case uncons s of

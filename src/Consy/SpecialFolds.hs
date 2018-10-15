@@ -177,8 +177,8 @@ any p = go
 
 {-# rules
 "cons any/build"
-    forall (p::a->Bool) (g::forall b.([x]->b->b)->b->b).
-    any @_ @[_] p (build g) = g ((||) . p) False
+    forall (p::a->Bool) (g::forall b.(a->b->b)->b->b).
+    any @[a] p (build g) = g ((||) . p) False
 
 "cons any text" [~1]
     any @Text = \p -> Data.Text.any p

@@ -19,6 +19,7 @@ import Data.Text (Text)
 import Data.Vector (Vector)
 import Data.Word (Word8)
 import GHC.Base (Int( I# ), (+#), errorWithoutStackTrace)
+import qualified GHC.Base
 import GHC.Num ((-))
 import GHC.Real (fromIntegral)
 import Test.Inspection
@@ -54,11 +55,10 @@ listIndex ls !n
     tooLarge _ = errorWithoutStackTrace "Prelude.!!: index too large"
 inspect ('consListIndex === 'listIndex)
 
-
 {- elemIndex -}
 consElemIndex, listElemIndex :: Eq a => a -> [a] -> Maybe Int
-consElemIndex x xs = elemIndex x xs
-listElemIndex x xs = listToMaybe (Data.List.findIndices (x==) xs)
+consElemIndex = elemIndex
+listElemIndex x = Data.List.findIndex (x==)
 inspect ('consElemIndex === 'listElemIndex)
 
 consElemIndexVector, vectorElemIndex :: Eq a => a -> Vector a -> Maybe Int
@@ -96,8 +96,8 @@ inspect ('consElemIndicesLBS === 'lbsElemIndices)
 
 {- findIndex -}
 consFindIndex, listFindIndex :: (a -> Bool) -> [a] -> Maybe Int
-consFindIndex p ls = findIndex p ls
-listFindIndex p = listToMaybe . Data.List.findIndices p
+consFindIndex = findIndex
+listFindIndex a = Data.Maybe.listToMaybe . Data.List.findIndices a
 inspect ('consFindIndex === 'listFindIndex)
 
 consFindIndexText, textFindIndex :: (Char -> Bool) -> Text -> Maybe Int
@@ -115,19 +115,19 @@ consFindIndexBS = findIndex
 bsFindIndex = Data.ByteString.findIndex
 inspect ('consFindIndexBS === 'bsFindIndex)
 
-consFindIndexLBS, lbsFindIndex :: (Word8 -> Bool) -> Data.ByteString.Lazy.ByteString -> Maybe Int64
-consFindIndexLBS p ls = fromIntegral <$> findIndex p ls
-lbsFindIndex p ls = fromIntegral <$> Data.ByteString.Lazy.findIndex p ls
+consFindIndexLBS, lbsFindIndex :: (Word8 -> Bool) -> Data.ByteString.Lazy.ByteString -> Maybe Int
+consFindIndexLBS = findIndex
+lbsFindIndex a b = fromIntegral <$> Data.ByteString.Lazy.findIndex a b
 inspect ('consFindIndexLBS === 'lbsFindIndex)
 
 
-{- findIndices -}
 consFindIndices, listFindIndices :: (a -> Bool) -> [a] -> [Int]
-consFindIndices p ls = findIndices p ls
-listFindIndices p ls = build $ \c n ->
+consFindIndices = findIndices
+listFindIndices p ls =
+  GHC.Base.build $ \c n ->
   let go x r k | p x       = I# k `c` r (k +# 1#)
                | otherwise = r (k +# 1#)
-  in foldr go (\_ -> n) ls 0#
+  in Data.List.foldr go (\_ -> n) ls 0#
 inspect ('consFindIndices === 'listFindIndices)
 
 consFindIndicesBS, bsFindIndices :: (Word8 -> Bool) -> Data.ByteString.ByteString -> [Int]

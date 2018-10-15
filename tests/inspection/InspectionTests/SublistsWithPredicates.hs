@@ -100,8 +100,12 @@ listIsSuffixOf ns hs =
           case b of
             [] -> Nothing
             _:ys -> dropLengthMaybe xs ys
--- FAIL
--- inspect ('consIsSuffixOfList === 'listIsSuffixOf)
+{-
+inspect ('consIsSuffixOfList === 'listIsSuffixOf)
+
+This inspection test fails due to implementation differences, but the benchmarks
+show it is just as fast as the Data.List version
+-}
 
 consIsSuffixOfText, textIsSuffixOf :: Text -> Text -> Bool
 consIsSuffixOfText = isSuffixOf

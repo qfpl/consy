@@ -20,6 +20,7 @@ library
   exposed-modules:     Consy
   other-modules:
                        Consy.Basic
+                       Consy.Eq
                        Consy.Transformations
                        Consy.TransformationsMap
                        Consy.Traversable

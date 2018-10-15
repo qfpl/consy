@@ -5,6 +5,7 @@ import Criterion.Main
 
 import Control.Applicative (ZipList(..), pure)
 import Data.Function (($), (.))
+import Data.Eq ((==))
 import Data.Ord ((>))
 import Data.Text (Text, pack)
 import Data.Int (Int, Int64)
@@ -26,7 +27,12 @@ import InspectionTests
 main :: IO ()
 main =
   defaultMain
-    [ env (pure [1..500::Int]) $
+    [ env (pure [1..10000::Int]) $
+      \input -> bgroup "list isSuffixOf"
+      [ bench "cons isSuffixOf" $ nf (consIsSuffixOfList [9999, 10000]) input
+      , bench "list isSuffixOf" $ nf (listIsSuffixOf [9999, 10000]) input
+      ]
+    , env (pure [1..500::Int]) $
       \input -> bgroup "list inits"
       [ bench "cons inits" $ nf consInitsList input
       , bench "list inits" $ nf listInits input
@@ -75,11 +81,6 @@ main =
       \input -> bgroup "list isSubsequenceOf"
       [ bench "cons isSubsequenceOf" $ nf (consIsSubsequenceOfList [2, 500]) input
       , bench "list isSubsequenceOf" $ nf (listIsSubsequenceOf [2, 500]) input
-      ]
-    , env (pure [1..10000::Int]) $
-      \input -> bgroup "list isSuffixOf"
-      [ bench "cons isSuffixOf" $ nf (consIsSuffixOfList [9999, 10000]) input
-      , bench "list isSuffixOf" $ nf (listIsSuffixOf [9999, 10000]) input
       ]
     , env (pure [1..10000::Int]) $
       \input -> bgroup "list isInfixOf"
