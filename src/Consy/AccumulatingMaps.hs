@@ -1,3 +1,4 @@
+{-# language CPP #-}
 {-# language NoImplicitPrelude #-}
 {-# language TypeApplications #-}
 module Consy.AccumulatingMaps
@@ -101,10 +102,14 @@ instance Applicative (StateL s) where
         let (s', f) = kf s
             (s'', v) = kv s'
         in (s'', f v)
+#ifdef __GLASGOW_HASKELL__
+#if __GLASGOW_HASKELL__ >800
     liftA2 f (StateL kx) (StateL ky) = StateL $ \s ->
         let (s', x) = kx s
             (s'', y) = ky s'
         in (s'', f x y)
+#endif
+#endif
 
 newtype StateR s a = StateR { runStateR :: s -> (s, a) }
 
@@ -117,7 +122,11 @@ instance Applicative (StateR s) where
         let (s', v) = kv s
             (s'', f) = kf s'
         in (s'', f v)
+#ifdef __GLASGOW_HASKELL__
+#if __GLASGOW_HASKELL__ >800
     liftA2 f (StateR kx) (StateR ky) = StateR $ \ s ->
         let (s', y) = ky s
             (s'', x) = kx s'
         in (s'', f x y)
+#endif
+#endif
