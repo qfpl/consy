@@ -138,7 +138,7 @@ zipFB c = \x y r -> (x,y) `c` r
 #-}
 
 
-{-# inline [1] zip3 #-}
+{-# inline [2] zip3 #-}
 -- zip3 :: [a] -> [b] -> [c] -> [(a,b,c)]
 zip3 ::
     ( Cons s s a a
@@ -175,7 +175,7 @@ zip3 = go
 #-}
 
 
-{-# inline [1] zip4 #-}
+{-# inline [2] zip4 #-}
 -- zip4 :: [a] -> [b] -> [c] -> [d] -> [(a,b,c,d)]
 zip4 ::
     ( Cons s s a a
@@ -216,7 +216,7 @@ zip4 = go
 #-}
 
 
-{-# inline [1] zip5 #-}
+{-# inline [2] zip5 #-}
 -- zip5 :: [a] -> [b] -> [c] -> [d] -> [e] -> [(a,b,c,d,e)]
 zip5 ::
     ( Cons s s a a
@@ -255,7 +255,7 @@ zip5 = go
 #-}
 
 
-{-# inline [1] zip6 #-}
+{-# inline [2] zip6 #-}
 -- zip6 :: [a] -> [b] -> [c] -> [d] -> [e] -> [(a,b,c,d,e,f)]
 zip6 ::
     ( Cons s s a a
@@ -298,7 +298,7 @@ zip6 = go
 #-}
 
 
-{-# inline [1] zip7 #-}
+{-# inline [2] zip7 #-}
 -- zip7 :: [a] -> [b] -> [c] -> [d] -> [e] -> [(a,b,c,d,e,f,g)]
 zip7 ::
     ( Cons s s a a
@@ -418,8 +418,8 @@ zipWithFB c f = \x y r -> (x `f` y) `c` r
 #-}
 
 
-{-# noinline [1] zipWith3 #-}
 -- zipWith3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]
+{-# inline [2] zipWith3 #-}
 zipWith3 ::
     ( Cons s s a a
     , Cons t t b b
@@ -459,7 +459,7 @@ zipWith3 f = go
 #-}
 
 
-{-# inline [1] zipWith4 #-}
+{-# inline [2] zipWith4 #-}
 -- zipWith4 :: (a -> b -> c -> d -> e) -> [a] -> [b] -> [c] -> [d] -> [e]
 zipWith4 ::
     ( Cons s s a a
@@ -504,7 +504,7 @@ zipWith4 f = go
 #-}
 
 
-{-# inline [1] zipWith5 #-}
+{-# inline [2] zipWith5 #-}
 -- zipWith5 :: (a -> b -> c -> d -> e -> f) -> [a] -> [b] -> [c] -> [d] -> [e] -> [f]
 zipWith5 ::
     ( Cons s s a a
@@ -545,7 +545,7 @@ zipWith5 ff = go
 #-}
 
 
-{-# inline [1] zipWith6 #-}
+{-# inline [2] zipWith6 #-}
 -- zipWith6 :: (a -> b -> c -> d -> e -> f -> g) -> [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [g]
 zipWith6 ::
     ( Cons s s a a
@@ -590,7 +590,7 @@ zipWith6 ff = go
 #-}
 
 
-{-# inline [1] zipWith7 #-}
+{-# inline [2] zipWith7 #-}
 -- zipWith7 :: (a -> b -> c -> d -> e -> f -> g -> h) -> [a] -> [b] -> [c] -> [d] -> [e] -> [f] -> [g] -> [h]
 zipWith7 ::
     ( Cons s s a a
@@ -629,7 +629,7 @@ zipWith7 ff = go
                                 Just (g, gs) -> ff a b c d e f g `cons` go as bs cs ds es fs gs
 
 
-{-# inline [1] unzip #-}
+{-# inline [2] unzip #-}
 -- unzip :: [(a,b)] -> ([a],[b])
 unzip ::
     ( AsEmpty s, Cons s s (a,b) (a,b)
@@ -660,7 +660,7 @@ unzip =  foldr (\(a,b) ~(as,bs) -> (a `cons` as, b `cons` bs)) (Empty,Empty)
 #-}
 
 
-{-# inline [1] unzip3 #-}
+{-# inline [2] unzip3 #-}
 -- unzip3 :: [(a,b,c)] -> ([a],[b],[c])
 unzip3 ::
     ( AsEmpty s, Cons s s (a,b,c) (a,b,c)
@@ -680,7 +680,7 @@ unzip3 =  foldr (\(a,b,c) ~(as,bs,cs) -> (a `cons` as, b `cons` bs, c `cons` cs)
 #-}
 
 
-{-# inline [1] unzip4 #-}
+{-# inline [2] unzip4 #-}
 -- unzip4 :: [(a,b,c,d)] -> ([a],[b],[c],[d])
 unzip4 ::
     ( AsEmpty s, Cons s s (a,b,c,d) (a,b,c,d)
@@ -701,7 +701,7 @@ unzip4 =  foldr (\(a,b,c,d) ~(as,bs,cs,ds) -> (a `cons` as, b `cons` bs, c `cons
 #-}
 
 
-{-# inline [1] unzip5 #-}
+{-# inline [2] unzip5 #-}
 -- unzip5 :: [(a,b,c,d,e)] -> ([a],[b],[c],[d],[e])
 unzip5 ::
     ( AsEmpty s, Cons s s (a,b,c,d,e) (a,b,c,d,e)
@@ -723,7 +723,7 @@ unzip5 =  foldr (\(a,b,c,d,e) ~(as,bs,cs,ds,es) -> (a `cons` as, b `cons` bs, c 
 #-}
 
 
-{-# inline [1] unzip6 #-}
+{-# inline [2] unzip6 #-}
 -- unzip6 :: [(a,b,c,d,e,f)] -> ([a],[b],[c],[d],[e],[f])
 unzip6 ::
     ( AsEmpty s, Cons s s (a,b,c,d,e,f) (a,b,c,d,e,f)
@@ -746,7 +746,7 @@ unzip6 =  foldr (\(a,b,c,d,e,f) ~(as,bs,cs,ds,es,fs) -> (a `cons` as, b `cons` b
 #-}
 
 
-{-# inline [1] unzip7 #-}
+{-# inline [2] unzip7 #-}
 -- unzip7 :: [(a,b,c,d,e,f,g)] -> ([a],[b],[c],[d],[e],[f],[g])
 unzip7 ::
     ( AsEmpty s, Cons s s (a,b,c,d,e,f,g) (a,b,c,d,e,f,g)
