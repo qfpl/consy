@@ -57,8 +57,16 @@ inspect ('consListIndex === 'listIndex)
 {- elemIndex -}
 consElemIndex, listElemIndex :: Eq a => a -> [a] -> Maybe Int
 consElemIndex = elemIndex
+listElemIndex = \x -> Data.List.foldr (const . Just) Nothing . Data.List.findIndices (x==)
+{-
+This test fails on GHC 8.2.2 or older versions due to listToMaybe defined as
+  using foldr so that it can fuse via the foldr/build rule.
+  This change implemented in base-4.11.0.0 (GHC 8.4.1).
+  See more details
+  https://ghc.haskell.org/trac/ghc/ticket/14387
+
 listElemIndex x = Data.List.findIndex (x==)
--- FAILS on ghc 8.2.2
+ -}
 inspect ('consElemIndex === 'listElemIndex)
 
 consElemIndexVector, vectorElemIndex :: Eq a => a -> Vector a -> Maybe Int
@@ -98,6 +106,15 @@ inspect ('consElemIndicesLBS === 'lbsElemIndices)
 consFindIndex, listFindIndex :: (a -> Bool) -> [a] -> Maybe Int
 consFindIndex = findIndex
 listFindIndex p = Data.List.foldr (const . Just) Nothing . Data.List.findIndices p
+{-
+This test fails on GHC 8.2.2 or older versions due to listToMaybe defined as
+  using foldr so that it can fuse via the foldr/build rule.
+  This change implemented in base-4.11.0.0 (GHC 8.4.1).
+  See more details
+  https://ghc.haskell.org/trac/ghc/ticket/14387
+
+  listFindIndex a = Data.Maybe.listToMaybe . Data.List.findIndices a
+ -}
 inspect ('consFindIndex === 'listFindIndex)
 
 consFindIndexText, textFindIndex :: (Char -> Bool) -> Text -> Maybe Int
