@@ -15,6 +15,7 @@ maintainer:          Queensland Functional Programming Lab <oᴉ˙ldɟb@llǝʞs�
 build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
+tested-with:         GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.1
 
 library
   exposed-modules:     Consy
@@ -37,41 +38,41 @@ library
                        Consy.Indexing
                        Consy.Zipping
 
-  build-depends:       base >=4.9 && <5
+  build-depends:       base >=4.10 && <5
                      , bytestring >=0.10 && <0.11
-                     , containers >=0.5 && <0.6
-                     , lens >=4.15 && <4.17
+                     , containers >=0.5 && <0.7
+                     , lens >=4.17 && <4.18
                      , text >=1.2 && <1.3
                      , vector >=0.9 && <0.13
   hs-source-dirs:      src
   default-language:    Haskell2010
 
 library consy-inspection-tests
-  exposed-modules:    InspectionTests
-                      InspectionTests.Basic
-                      InspectionTests.Transformations
-                      InspectionTests.TransformationsMap
-                      InspectionTests.Folds
-                      InspectionTests.SpecialFolds
-                      InspectionTests.Scans
-                      InspectionTests.AccumulatingMaps
-                      InspectionTests.InfiniteLists
-                      InspectionTests.Unfolding
-                      InspectionTests.ExtractingSublists
-                      InspectionTests.SublistsWithPredicates
-                      InspectionTests.SearchingByEquality
-                      InspectionTests.SearchingWithPredicate
-                      InspectionTests.Indexing
-                      InspectionTests.Zipping
-                      Orphans
+  exposed-modules:     InspectionTests
+                       InspectionTests.Basic
+                       InspectionTests.Transformations
+                       InspectionTests.TransformationsMap
+                       InspectionTests.Folds
+                       InspectionTests.SpecialFolds
+                       InspectionTests.Scans
+                       InspectionTests.AccumulatingMaps
+                       InspectionTests.InfiniteLists
+                       InspectionTests.Unfolding
+                       InspectionTests.ExtractingSublists
+                       InspectionTests.SublistsWithPredicates
+                       InspectionTests.SearchingByEquality
+                       InspectionTests.SearchingWithPredicate
+                       InspectionTests.Indexing
+                       InspectionTests.Zipping
+                       Orphans
   hs-source-dirs:      tests/inspection
   build-depends:       consy
-                     , base >=4.9 && <5
+                     , base >=4.10 && <5
                      , bytestring >=0.10 && <0.11
-                     , inspection-testing >=0.2 && <0.3
-                     , lens >=4.16.1 && <4.17
+                     , containers >=0.5 && <0.7
+                     , inspection-testing >=0.2 && <0.4
+                     , lens >=4.17 && <4.18
                      , text >=1.2 && <1.3
-                     , containers >=0.5 && <0.6
                      , vector >=0.9 && <0.13
   default-language:    Haskell2010
 
@@ -81,10 +82,10 @@ test-suite consy-tests
   hs-source-dirs:      tests
   build-depends:       consy
                      , consy-inspection-tests
-                     , text
-                     , base >=4.9 && <5
+                     , base >=4.10 && <5
                      , hedgehog >=0.6 && <0.7
                      , vector >=0.9 && <0.13
+                     , text >=1.2 && <1.3
   ghc-options:         -O
   default-language:    Haskell2010
 
@@ -94,12 +95,12 @@ benchmark consy-benchmarks
   hs-source-dirs:      tests/benchmarks
   build-depends:       consy
                      , consy-inspection-tests
-                     , base >=4.9 && <5
+                     , base >=4.10 && <5
                      , bytestring >=0.10 && <0.11
-                     , criterion >=1.3
-                     , inspection-testing >=0.2 && <0.3
-                     , lens >=4.16.1 && <4.17
+                     , containers >=0.5 && <0.7
+                     , criterion >=1.3 && <1.6
+                     , inspection-testing >=0.2 && <0.4
+                     , lens >=4.17 && <4.18
                      , text >=1.2 && <1.3
-                     , containers >=0.5 && <0.6
   ghc-options:         -O
   default-language:    Haskell2010
