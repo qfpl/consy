@@ -16,7 +16,7 @@ let
       lens = self.callHackage "lens" "4.16.1" {};
       inspection-testing = self.callHackage "inspection-testing" "0.2.0.1" {};
     } //
-    (if compiler == "ghc843"
+    (if compiler == "ghc822" || compiler == "ghc843"
      then {
        base-compat = self.callHackage "base-compat" "0.9.3" {};
      } else {});

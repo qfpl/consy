@@ -8,8 +8,8 @@ version:             0.1.0.0
 license:             BSD3
 --                   Must be spelled with a 'C' for nix
 -- license-file:        LICENCE
-author:              Isaac Elliott
-maintainer:          isaace71295@gmail.com
+author:              Isaac Elliott, Erzsebet Nemeth
+maintainer:          Queensland Functional Programming Lab <oᴉ˙ldɟb@llǝʞsɐɥ>
 -- copyright:
 -- category:
 build-type:          Simple
@@ -19,6 +19,25 @@ tested-with:         GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.1
 
 library
   exposed-modules:     Consy
+  other-modules:
+                       Consy.Basic
+                       Consy.Eq
+                       Consy.Transformations
+                       Consy.TransformationsMap
+                       Consy.Traversable
+                       Consy.Folds
+                       Consy.Scans
+                       Consy.SpecialFolds
+                       Consy.AccumulatingMaps
+                       Consy.InfiniteLists
+                       Consy.Unfolding
+                       Consy.ExtractingSublists
+                       Consy.SublistsWithPredicates
+                       Consy.SearchingByEquality
+                       Consy.SearchingWithPredicate
+                       Consy.Indexing
+                       Consy.Zipping
+
   build-depends:       base >=4.10 && <5
                      , bytestring >=0.10 && <0.11
                      , containers >=0.5 && <0.7
@@ -30,15 +49,31 @@ library
 
 library consy-inspection-tests
   exposed-modules:     InspectionTests
+                       InspectionTests.Basic
+                       InspectionTests.Transformations
+                       InspectionTests.TransformationsMap
+                       InspectionTests.Folds
+                       InspectionTests.SpecialFolds
+                       InspectionTests.Scans
+                       InspectionTests.AccumulatingMaps
+                       InspectionTests.InfiniteLists
+                       InspectionTests.Unfolding
+                       InspectionTests.ExtractingSublists
+                       InspectionTests.SublistsWithPredicates
+                       InspectionTests.SearchingByEquality
+                       InspectionTests.SearchingWithPredicate
+                       InspectionTests.Indexing
+                       InspectionTests.Zipping
+                       Orphans
   hs-source-dirs:      tests/inspection
   build-depends:       consy
                      , base >=4.10 && <5
                      , bytestring >=0.10 && <0.11
+                     , containers >=0.5 && <0.7
                      , inspection-testing >=0.2 && <0.4
                      , lens >=4.17 && <4.18
                      , text >=1.2 && <1.3
-                     , containers >=0.5 && <0.7
-  ghc-options:         -O
+                     , vector >=0.9 && <0.13
   default-language:    Haskell2010
 
 test-suite consy-tests
@@ -48,6 +83,9 @@ test-suite consy-tests
   build-depends:       consy
                      , consy-inspection-tests
                      , base >=4.10 && <5
+                     , hedgehog >=0.6 && <0.7
+                     , vector >=0.9 && <0.13
+                     , text >=1.2 && <1.3
   ghc-options:         -O
   default-language:    Haskell2010
 
@@ -59,10 +97,10 @@ benchmark consy-benchmarks
                      , consy-inspection-tests
                      , base >=4.10 && <5
                      , bytestring >=0.10 && <0.11
+                     , containers >=0.5 && <0.7
                      , criterion >=1.3 && <1.6
                      , inspection-testing >=0.2 && <0.4
                      , lens >=4.17 && <4.18
                      , text >=1.2 && <1.3
-                     , containers >=0.5 && <0.7
   ghc-options:         -O
   default-language:    Haskell2010
