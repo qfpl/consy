@@ -53,12 +53,41 @@ listFind p = go
       | otherwise = go xs
 inspect ('consFind === 'listFind)
 
-{-
-consFindZipList, zipListFind :: (a -> Bool) -> ZipList a -> Maybe a
-consFindZipList = find
-zipListFind p = coerce (listFind p)
-inspect ('consFindZipList ==- 'zipListFind)
--}
+consFindText, textFind :: (Char -> Bool) -> Text -> Maybe Char
+consFindText = find
+textFind = Data.Text.find
+inspect ('consFindText === 'textFind)
+
+consFindText', textFind' :: Text -> Maybe Char
+consFindText' = find (== 'a')
+textFind' = Data.Text.find (== 'a')
+inspect ('consFindText' === 'textFind')
+
+consFindText'', textFind'' :: Maybe Char
+consFindText'' = find (== 'a') (pack "bbbb")
+textFind'' = Data.Text.find (== 'a') (pack "bbbb")
+inspect ('consFindText'' === 'textFind'')
+
+consFindLazyText, lazyTextFind :: (Char -> Bool) -> Data.Text.Lazy.Text -> Maybe Char
+consFindLazyText = find
+lazyTextFind = Data.Text.Lazy.find
+inspect ('consFindLazyText === 'lazyTextFind)
+
+consFindVector, vectorFind :: (a -> Bool) -> Vector a -> Maybe a
+consFindVector = find
+vectorFind = Data.Vector.find
+inspect ('consFindVector === 'vectorFind)
+
+consFindBS, bsFind :: (Word8 -> Bool) -> Data.ByteString.ByteString -> Maybe Word8
+consFindBS = find
+bsFind = Data.ByteString.find
+inspect ('consFindBS === 'bsFind)
+
+consFindLBS, lbsFind :: (Word8 -> Bool)-> Data.ByteString.Lazy.ByteString -> Maybe Word8
+consFindLBS = find
+lbsFind = Data.ByteString.Lazy.find
+inspect ('consFindLBS === 'lbsFind)
+
 
 {- filter -}
 consFilter, listFilter :: (a -> Bool) -> [a] -> [a]
@@ -69,13 +98,6 @@ listFilter p = go
     go (x : xs)
       | p x = x : go xs | otherwise = go xs
 inspect ('consFilter === 'listFilter)
-
-{-
-consFilterZipList, zipListFilter :: (a -> Bool) -> ZipList a -> ZipList a
-consFilterZipList = filter
-zipListFilter p = coerce (listFilter p)
-inspect ('consFilterZipList ==- 'zipListFilter)
--}
 
 consFilterText, textFilter :: (Char -> Bool) -> Text -> Text
 consFilterText = filter

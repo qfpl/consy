@@ -1,9 +1,9 @@
 {-# language BangPatterns #-}
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE MagicHash #-}
+{-# language CPP #-}
+{-# language MagicHash #-}
 {-# language NoImplicitPrelude #-}
 {-# language TemplateHaskell #-}
-{-# LANGUAGE Trustworthy #-}
+{-# language Trustworthy #-}
 {-# options_ghc -O -fplugin Test.Inspection.Plugin #-}
 module InspectionTests.Indexing where
 
