@@ -40,7 +40,6 @@ import qualified Data.Vector
 import qualified Data.Word
 
 import Consy
-import Orphans
 
 
 {- take -}

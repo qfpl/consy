@@ -64,7 +64,6 @@ library consy-inspection-tests
                        InspectionTests.SearchingWithPredicate
                        InspectionTests.Indexing
                        InspectionTests.Zipping
-                       Orphans
   hs-source-dirs:      tests/inspection
   build-depends:       consy
                      , base >=4.10 && <5
